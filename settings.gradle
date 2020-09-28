@@ -1,0 +1,3 @@
+rootProject.name='android-ryeex-sdk-test'
+include ':bandDemo'
+include ':watchDemo'

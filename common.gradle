@@ -1,0 +1,25 @@
+
+android{
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 29
+
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", 'x86_64'
+        }
+    }
+
+    ndkVersion "20.0.5594570"
+
+    /*viewBinding {
+        enabled = true
+    }*/
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
