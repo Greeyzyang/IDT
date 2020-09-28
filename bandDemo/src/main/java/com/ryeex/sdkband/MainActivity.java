@@ -10,7 +10,9 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
     TextView tvConnectStatus;
     @BindView(R.id.tv_result)
     TextView tvResult;
+    @BindView(R.id.et_input)
+    EditText etInput;
+    String inPutStr;
 
     private final int MSG_REBOOT = 100;
 
@@ -182,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
     })
     public void onClick(View v) {
         setTextResult("");
+        inPutStr = etInput.getText().toString();
+        Log.i(TAG, "inPutStr:" + inPutStr);
         switch (v.getId()) {
             case R.id.tv_unbind:
                 unbindDevice(v);
@@ -820,8 +827,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setDeviceBrightness(View view) {
+        if (!inPutStr.equalsIgnoreCase("1") && !inPutStr.equalsIgnoreCase("2") && !inPutStr.equalsIgnoreCase("3")) {
+            Toast.makeText(this, "数据格式错", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().setDeviceBrightness(DeviceBrightness.MID, new AsyncBleCallback<Void, BleError>() {
+        DeviceBrightness deviceBrightness;
+        if (inPutStr.equalsIgnoreCase("1")) {
+            deviceBrightness = DeviceBrightness.LOW;
+        } else if (inPutStr.equalsIgnoreCase("2")) {
+            deviceBrightness = DeviceBrightness.MID;
+        } else {
+            deviceBrightness = DeviceBrightness.HIGH;
+        }
+        DeviceManager.getInstance().getDevice().setDeviceBrightness(deviceBrightness, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setDeviceBrightness onSuccess");

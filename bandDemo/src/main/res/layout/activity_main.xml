@@ -19,6 +19,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <EditText
+        android:id="@+id/et_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="数据输入"
+        android:textColor="@color/colorBlack"
+        android:textColorHint="@color/colorNormal"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_connect_status" />
+
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/sv_main"
         android:layout_width="0dp"
@@ -26,7 +39,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_connect_status">
+        app:layout_constraintTop_toBottomOf="@id/et_input">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -273,5 +286,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/sv_main"
-        app:layout_constraintTop_toBottomOf="@+id/tv_connect_status" />
+        app:layout_constraintTop_toBottomOf="@+id/et_input" />
 </androidx.constraintlayout.widget.ConstraintLayout>
