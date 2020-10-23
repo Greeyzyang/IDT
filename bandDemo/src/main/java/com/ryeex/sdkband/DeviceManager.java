@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.ryeex.band.adapter.device.BandDevice;
+import com.ryeex.band.adapter.device.IBandDeviceRequestListener;
 import com.ryeex.ble.common.device.DeviceConnectListener;
 import com.ryeex.ble.common.device.DeviceRequestListener;
 import com.ryeex.ble.common.device.OnBindListener;
@@ -177,7 +178,7 @@ public class DeviceManager {
                 }
             }
         });
-        device.setDeviceRequestListener(new DeviceRequestListener() {
+        device.setDeviceRequestListener(new IBandDeviceRequestListener() {
 
             @Override
             public void onHeartbeat(DeviceHeartbeatData heartbeatData) {

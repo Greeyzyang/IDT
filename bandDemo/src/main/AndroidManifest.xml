@@ -42,6 +42,8 @@
 
         <activity android:name="com.ryeex.sdkband.ScanActivity" />
         <activity android:name="com.ryeex.sdkband.DeviceBindActivity" />
+        <activity android:name="com.ryeex.sdkband.PbDeviceActivity" />
+        <activity android:name="com.ryeex.sdkband.JsonDeviceActivity" />
 
         <service android:name="com.ryeex.sdkband.CoreService" />
 
