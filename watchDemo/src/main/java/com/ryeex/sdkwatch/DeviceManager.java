@@ -8,8 +8,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.ryeex.ble.common.device.OnDataUploadListener;
 import com.ryeex.ble.common.device.OnUploadResultListener;
+import com.ryeex.watch.adapter.device.IWatchDeviceRequestListener;
 import com.ryeex.watch.adapter.device.WatchDevice;
 import com.ryeex.ble.common.device.DeviceConnectListener;
 import com.ryeex.ble.common.device.DeviceRequestListener;
@@ -179,7 +179,7 @@ public class DeviceManager {
                 }
             }
         });
-        device.setDeviceRequestListener(new DeviceRequestListener() {
+        device.setDeviceRequestListener(new IWatchDeviceRequestListener() {
 
             @Override
             public void onHeartbeat(DeviceHeartbeatData heartbeatData) {
@@ -274,15 +274,6 @@ public class DeviceManager {
                 BleLogger.d(TAG, "onVoiceSessionStop");
                 if (onVoiceListener != null) {
                     onVoiceListener.onStop();
-                }
-            }
-        });
-
-        device.setDataUploadListener(new OnDataUploadListener() {
-            @Override
-            public void onUploadServer(List<String> dataSet, OnUploadResultListener listener) {
-                if(listener != null){
-                    listener.onResult(true);
                 }
             }
         });

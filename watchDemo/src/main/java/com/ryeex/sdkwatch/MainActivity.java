@@ -15,8 +15,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.ryeex.ble.common.device.DataUploadAsyncCallback;
 import com.ryeex.ble.common.device.DeviceConnectListener;
+import com.ryeex.ble.common.device.IResultCallback;
+import com.ryeex.ble.common.device.OnDataSyncListener;
 import com.ryeex.ble.common.model.entity.AppNotification;
 import com.ryeex.ble.common.model.entity.DeviceActivities;
 import com.ryeex.ble.common.model.entity.DeviceBrightness;
@@ -345,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void syncDeviceData(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().syncDeviceData(new DataUploadAsyncCallback<Integer, BleError>() {
+        DeviceManager.getInstance().getDevice().syncDeviceData(new OnDataSyncListener<List<byte[]>>() {
             @Override
             public void onStart(int total) {
                 //返回total总包数
@@ -359,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onSuccess(Integer result) {
+            public void onSuccess(List<byte[]> result, IResultCallback resultCallback) {
                 Log.i(TAG, "syncDeviceData onSuccess result:" + GSON.toJSONString(result));
                 setTextResult(GSON.toJSONString(result));
                 /*for (DeviceDataSet deviceDataSet : result) {
@@ -404,6 +405,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }*/
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                if (resultCallback != null) {
+                    resultCallback.onResult(true);
+                }
             }
 
             @Override
