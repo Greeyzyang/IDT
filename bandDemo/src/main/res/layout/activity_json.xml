@@ -25,6 +25,12 @@
         android:orientation="vertical">
 
         <Button
+            android:id="@+id/btn_unbind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="解绑" />
+
+        <Button
             android:id="@+id/btn_scan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

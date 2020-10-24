@@ -2,10 +2,10 @@ package com.ryeex.sdkband;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -34,6 +34,7 @@ public class DeviceBindActivity extends AppCompatActivity {
     @BindView(R.id.btn_finish)
     Button btnFinish;
 
+    private String from;
 
 
     @Override
@@ -42,6 +43,10 @@ public class DeviceBindActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_bind);
         ButterKnife.bind(this);
+        if (getIntent().hasExtra("from")) {
+            from = getIntent().getStringExtra("from");
+        }
+
         if (getIntent().hasExtra("scannedDevice")) {
             ScannedDevice scannedDevice = getIntent().getParcelableExtra("scannedDevice");
             if (scannedDevice == null) {
@@ -105,7 +110,13 @@ public class DeviceBindActivity extends AppCompatActivity {
 
 
     public void finishBind(View view) {
-        startActivity(new Intent(this, JsonDeviceActivity.class));
+        Intent intent;
+        if (TextUtils.equals("json", from)) {
+            intent = new Intent(this, PbDeviceActivity.class);
+        } else {
+            intent = new Intent(this, JsonDeviceActivity.class);
+        }
+        startActivity(intent);
         finish();
     }
 

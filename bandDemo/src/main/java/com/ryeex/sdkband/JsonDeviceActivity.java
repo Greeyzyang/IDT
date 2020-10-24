@@ -21,6 +21,7 @@ import com.ryeex.ble.connector.utils.BleUtil;
 import com.ryeex.ble.connector.utils.RandomUtil;
 import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
+import com.ryeex.sdkband.utils.GSON;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,7 +73,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_developer);
+        setContentView(R.layout.activity_json);
         ButterKnife.bind(this);
 
         DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
@@ -120,40 +121,62 @@ public class JsonDeviceActivity extends AppCompatActivity {
         return !isFinishing() && !isDestroyed();
     }
 
-    @OnClick({R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,})
+    @OnClick({R.id.btn_unbind, R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,})
     public void onClick(View v) {
         inPutStr = etInput.getText().toString();
         Log.i(TAG, "inPutStr:" + inPutStr);
         switch (v.getId()) {
+            case R.id.btn_unbind:
+                unbindDevice();
+                break;
             case R.id.btn_scan:
-                scan(v);
+                scan();
                 break;
             case R.id.btn_click:
-                coordinate_click(v);
+                coordinate_click();
                 break;
             case R.id.btn_down_slip:
-                down_slip(v);
+                down_slip();
                 break;
             case R.id.btn_left_slip:
-                left_slip(v);
+                left_slip();
                 break;
             case R.id.btn_right_slip:
-                right_slip(v);
+                right_slip();
                 break;
             case R.id.btn_up_slip:
-                up_slip(v);
+                up_slip();
                 break;
             default:
         }
     }
 
-    public void scan(View v) {
+
+    private void unbindDevice() {
+        DeviceManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
+                setDeviceConnectStatus("已解绑");
+                startActivity(new Intent(JsonDeviceActivity.this, ScanActivity.class));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "unbindDevice onFailure:" + error);
+            }
+        });
+    }
+
+
+    public void scan() {
         DeviceManager.getInstance().getDevice().disconnect(null);
         Intent intent = new Intent(this, ScanActivity.class);
+        intent.putExtra("from", "json");
         startActivity(intent);
     }
 
-    public void coordinate_click(View v) {
+    public void coordinate_click() {
         if (inPutStr.isEmpty()) {
             Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
             return;
@@ -180,7 +203,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
         }
     }
 
-    public void up_slip(View v) {
+    public void up_slip() {
         if (DeviceManager.getInstance().getDevice() != null) {
             DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "320"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
@@ -222,7 +245,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
 
     }
 
-    public void down_slip(View v) {
+    public void down_slip() {
         DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "0"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
@@ -255,7 +278,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
         });
     }
 
-    public void right_slip(View v) {
+    public void right_slip() {
         DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "0"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
@@ -288,7 +311,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
         });
     }
 
-    public void left_slip(View v) {
+    public void left_slip() {
         DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "320", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
