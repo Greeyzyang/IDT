@@ -234,17 +234,18 @@ public class JsonDeviceActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(BleError error) {
                 }
+
             });
         }
 
         if(device == null){
             return;
         }
-        String[] tags = new String[]{"280","240","200","160","120","80","40"};
+        String[] tags = new String[]{"300","280","260","240","220","200","180","160","140","120","100","80","60","40","20"};
             for (String s : tags) {
                 device.sendJson(buildJson("touch", "move", "160", s), null);
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
