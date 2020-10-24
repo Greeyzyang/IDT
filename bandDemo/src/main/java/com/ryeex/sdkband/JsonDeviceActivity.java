@@ -6,8 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,10 +18,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ryeex.band.protocol.callback.AsyncProtocolCallback;
 import com.ryeex.band.protocol.device.JsonDevice;
 import com.ryeex.ble.common.device.DeviceConnectListener;
+import com.ryeex.ble.common.model.entity.DeviceBrightness;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.log.BleLogger;
 import com.ryeex.ble.connector.utils.RandomUtil;
 import com.ryeex.sdk.R;
+import com.ryeex.sdkband.utils.GSON;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,22 +31,38 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class JsonDeviceActivity extends AppCompatActivity {
 
     private final String TAG = "DeveloperActivity";
     private List<Integer> idList = new ArrayList<>();
     private JsonDevice device;
 
+    @BindView(R.id.et_input)
+    EditText etInput;
+    String inPutStr;
+
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_developer);
-
+        ButterKnife.bind(this);
 
         IntentFilter bleStateChangeFilter = new IntentFilter();
         bleStateChangeFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mBleStateChangeReceiver, bleStateChangeFilter);
-        startConnect();
+//        startConnect();
+        if(device != null){
+            device.disconnect(null);
+        }
+        Intent intent = new Intent(this, ScanActivity.class);
+        intent.putExtra("from", "json");
+        startActivityForResult(intent, 100);
     }
 
 
@@ -56,7 +77,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
                     break;
                 case BluetoothAdapter.STATE_ON:
                     Log.d(TAG, " BroadcastReceiver STATE_ON");
-                    startConnect();
+//                    startConnect();
                     break;
                 case BluetoothAdapter.STATE_TURNING_OFF:
                     Log.d(TAG, " BroadcastReceiver STATE_TURNING_OFF");
@@ -80,9 +101,24 @@ public class JsonDeviceActivity extends AppCompatActivity {
     };
 
 
-    private void startConnect() {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 100) {
+                if (data != null && data.hasExtra("mac")) {
+                    String mac = data.getStringExtra("mac");
+                    if (!TextUtils.isEmpty(mac)) {
+                        startConnect(mac);
+                    }
+                }
+            }
+        }
+    }
+
+    private void startConnect(String mac) {
         device = new JsonDevice();
-        device.setMac("9C:F6:DD:38:09:1D");
+        device.setMac(mac);
         device.setDeviceConnectListener(new DeviceConnectListener() {
             @Override
             public void onConnecting() {
@@ -123,10 +159,42 @@ public class JsonDeviceActivity extends AppCompatActivity {
         });
     }
 
+    @OnClick({R.id.btn_scan, R.id.btn_test,})
+    public void onClick(View v) {
+        inPutStr = etInput.getText().toString();
+        Log.i(TAG, "inPutStr:" + inPutStr);
+        switch (v.getId()) {
+            case R.id.btn_scan:
+                scan(v);
+                break;
+            case R.id.btn_test:
+                test(v);
+                break;
+            default:
+        }
+    }
+
+    public void scan(View v) {
+        if(device != null){
+            device.disconnect(null);
+        }
+        Intent intent = new Intent(this, ScanActivity.class);
+        intent.putExtra("from", "json");
+        startActivityForResult(intent, 100);
+    }
 
     public void test(View v) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(inPutStr)){
+            return;
+        }
         if (device != null) {
-            device.sendJson(buildJson("get_device_info", "sn"), new AsyncProtocolCallback<String, BleError>() {
+            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+//            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
@@ -135,7 +203,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(BleError error) {
-                    BleLogger.e(TAG, "sendJson onFailure " + error);
+
 
                 }
             });
@@ -153,12 +221,17 @@ public class JsonDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private String buildJson(String method, Object param) {
+    private String buildJson(String method, Object gesture,  String x, String y)  {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("id", getId());
             jsonObject.put("method", method);
-            jsonObject.put("para", param);
+            jsonObject.put("gesture", gesture);
+            JSONObject posjsonObject = new JSONObject();
+            posjsonObject.put("x", x);
+            posjsonObject.put("y", y);
+            jsonObject.put("pos", posjsonObject);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

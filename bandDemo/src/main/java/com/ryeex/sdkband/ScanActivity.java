@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +37,7 @@ public class ScanActivity extends AppCompatActivity {
     @BindView(R.id.ryv_main)
     RecyclerView ryvMain;
 
+    private String from;
     private DeviceScanAdapter deviceScanAdapter;
 
 
@@ -77,6 +79,9 @@ public class ScanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scan);
         ButterKnife.bind(this);
 
+        if(getIntent().hasExtra("from")){
+            from = getIntent().getStringExtra("from");
+        }
         ryvMain.setLayoutManager(new LinearLayoutManager(this));
         deviceScanAdapter = new DeviceScanAdapter(scannedShowDeviceList);
         ryvMain.setAdapter(deviceScanAdapter);
@@ -136,9 +141,16 @@ public class ScanActivity extends AppCompatActivity {
 
     private void bindDevice(ScannedDevice scannedDevice) {
         BleScanner.getInstance().stopScan();
-        Intent intent = new Intent(this, DeviceBindActivity.class);
-        intent.putExtra("scannedDevice", scannedDevice);
-        startActivity(intent);
+        if(TextUtils.equals(from, "json")){
+            Intent intent = new Intent();
+            intent.putExtra("mac", scannedDevice.getMac());
+            setResult(RESULT_OK, intent);
+            finish();
+        }else{
+            Intent intent = new Intent(this, DeviceBindActivity.class);
+            intent.putExtra("scannedDevice", scannedDevice);
+            startActivity(intent);
+        }
     }
 
 

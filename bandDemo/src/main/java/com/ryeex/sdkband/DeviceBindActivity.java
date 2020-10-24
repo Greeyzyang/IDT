@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -28,11 +29,11 @@ import butterknife.ButterKnife;
  * @date on 2019-05-15
  */
 public class DeviceBindActivity extends AppCompatActivity {
-
     @BindView(R.id.tv_status)
     TextView tvStatus;
     @BindView(R.id.btn_finish)
     Button btnFinish;
+
 
 
     @Override
@@ -104,7 +105,7 @@ public class DeviceBindActivity extends AppCompatActivity {
 
 
     public void finishBind(View view) {
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(new Intent(this, JsonDeviceActivity.class));
         finish();
     }
 
