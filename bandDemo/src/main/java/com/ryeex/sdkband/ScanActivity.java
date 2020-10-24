@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.text.TextUtils;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -79,7 +78,7 @@ public class ScanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scan);
         ButterKnife.bind(this);
 
-        if(getIntent().hasExtra("from")){
+        if (getIntent().hasExtra("from")) {
             from = getIntent().getStringExtra("from");
         }
         ryvMain.setLayoutManager(new LinearLayoutManager(this));
@@ -128,7 +127,7 @@ public class ScanActivity extends AppCompatActivity {
 
         AndPermission.with(this)
                 .runtime()
-                .permission(Permission.ACCESS_COARSE_LOCATION,Permission.ACCESS_FINE_LOCATION)
+                .permission(Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION)
                 .onGranted(permissions -> {
                     BleScanner.getInstance().start();
                 })
@@ -141,16 +140,10 @@ public class ScanActivity extends AppCompatActivity {
 
     private void bindDevice(ScannedDevice scannedDevice) {
         BleScanner.getInstance().stopScan();
-        if(TextUtils.equals(from, "json")){
-            Intent intent = new Intent();
-            intent.putExtra("mac", scannedDevice.getMac());
-            setResult(RESULT_OK, intent);
-            finish();
-        }else{
-            Intent intent = new Intent(this, DeviceBindActivity.class);
-            intent.putExtra("scannedDevice", scannedDevice);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(this, DeviceBindActivity.class);
+        intent.putExtra("scannedDevice", scannedDevice);
+        intent.putExtra("from", from);
+        startActivity(intent);
     }
 
 

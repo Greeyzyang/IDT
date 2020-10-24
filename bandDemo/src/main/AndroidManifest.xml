@@ -30,9 +30,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name="com.ryeex.sdkband.MainActivity"
-            android:launchMode="singleTask">
+        <activity android:name="com.ryeex.sdkband.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,10 +38,21 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.ryeex.sdkband.ScanActivity" />
-        <activity android:name="com.ryeex.sdkband.DeviceBindActivity" />
-        <activity android:name="com.ryeex.sdkband.PbDeviceActivity" />
-        <activity android:name="com.ryeex.sdkband.JsonDeviceActivity" />
+        <activity
+            android:name="com.ryeex.sdkband.ScanActivity"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name="com.ryeex.sdkband.DeviceBindActivity"
+            android:launchMode="singleTop" />
+        />
+        <activity
+            android:name="com.ryeex.sdkband.PbDeviceActivity"
+
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.ryeex.sdkband.JsonDeviceActivity"
+            android:launchMode="singleTask" />
 
         <service android:name="com.ryeex.sdkband.CoreService" />
 
