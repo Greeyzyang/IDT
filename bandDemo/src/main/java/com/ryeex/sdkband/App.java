@@ -1,7 +1,5 @@
 package com.ryeex.sdkband;
 
-import android.util.Log;
-
 import androidx.multidex.MultiDexApplication;
 
 import com.ryeex.ble.connector.BleEngine;
@@ -16,7 +14,7 @@ public class App extends MultiDexApplication {
         super.onCreate();
         Logger.init(this, true);
         PrefsEngine.init(this);
-        BleEngine.init(this, new BleLogCallback() {
+        BleEngine.init(this, true, new BleLogCallback() {
             @Override
             public void verbose(String tag, String msg) {
                 Logger.v(tag, msg);

@@ -254,6 +254,15 @@
                 android:gravity="center"
                 android:text="获取表盘列表" />
 
+            <TextView
+                android:id="@+id/send_json"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/colorNormal"
+                android:gravity="center"
+                android:text="发送json" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
