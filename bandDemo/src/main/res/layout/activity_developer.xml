@@ -1,59 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ryeex.sdkband.MainActivity"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:orientation="vertical">
 
 
-    <Button
-        android:id="@+id/btn_scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="扫描" />
-
-    <Button
-        android:id="@+id/btn_right_slip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="右滑" />
-
-    <Button
-        android:id="@+id/btn_left_slip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="左滑" />
-
-    <Button
-        android:id="@+id/btn_up_slip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="上滑" />
-
-    <Button
-        android:id="@+id/btn_down_slip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="下滑" />
-
-    <Button
-        android:id="@+id/btn_click"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="坐标点击" />
-
-    <EditText
-        android:id="@+id/et_input"
+    <TextView
+        android:id="@+id/tv_connect_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="数据输入"
-        android:textColor="@color/colorBlack"
-        android:textColorHint="@color/colorNormal"
-        android:textSize="15sp"
+        android:background="#FFECEDED"
+        android:gravity="center"
+        android:padding="10dp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="扫描" />
+
+        <Button
+            android:id="@+id/btn_right_slip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="右滑" />
+
+        <Button
+            android:id="@+id/btn_left_slip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="左滑" />
+
+        <Button
+            android:id="@+id/btn_up_slip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="上滑" />
+
+        <Button
+            android:id="@+id/btn_down_slip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下滑" />
+
+        <Button
+            android:id="@+id/btn_click"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="坐标点击" />
+
+        <EditText
+            android:id="@+id/et_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="数据输入"
+            android:textColor="@color/colorBlack"
+            android:textColorHint="@color/colorNormal"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </LinearLayout>
 </LinearLayout>

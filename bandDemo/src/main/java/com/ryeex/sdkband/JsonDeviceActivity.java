@@ -1,36 +1,32 @@
 package com.ryeex.sdkband;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.ryeex.band.protocol.callback.AsyncProtocolCallback;
-import com.ryeex.band.protocol.device.JsonDevice;
 import com.ryeex.ble.common.device.DeviceConnectListener;
-import com.ryeex.ble.common.model.entity.DeviceBrightness;
+import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.log.BleLogger;
+import com.ryeex.ble.connector.utils.BleUtil;
 import com.ryeex.ble.connector.utils.RandomUtil;
 import com.ryeex.sdk.R;
-import com.ryeex.sdkband.utils.GSON;
+import com.ryeex.sdkband.model.PrefsDevice;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,14 +34,39 @@ import butterknife.OnClick;
 
 public class JsonDeviceActivity extends AppCompatActivity {
 
-    private final String TAG = "DeveloperActivity";
-    private List<Integer> idList = new ArrayList<>();
-    private JsonDevice device;
 
+    @BindView(R.id.tv_connect_status)
+    TextView tvConnectStatus;
     @BindView(R.id.et_input)
     EditText etInput;
+
     String inPutStr;
 
+    private final String TAG = "DeveloperActivity";
+    private List<Integer> idList = new ArrayList<>();
+
+
+    private DeviceConnectListener deviceConnectListener = new DeviceConnectListener() {
+        @Override
+        public void onConnecting() {
+            setDeviceConnectStatus("正在连接...");
+        }
+
+        @Override
+        public void onLoginSuccess() {
+            setDeviceConnectStatus("已连接");
+        }
+
+        @Override
+        public void onDisconnected(BleError error) {
+            setDeviceConnectStatus("连接断开");
+        }
+
+        @Override
+        public void onFailure(BleError error) {
+            setDeviceConnectStatus("连接失败");
+        }
+    };
 
 
     @Override
@@ -54,110 +75,49 @@ public class JsonDeviceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_developer);
         ButterKnife.bind(this);
 
-        IntentFilter bleStateChangeFilter = new IntentFilter();
-        bleStateChangeFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mBleStateChangeReceiver, bleStateChangeFilter);
-//        startConnect();
-        if(device != null){
-            device.disconnect(null);
-        }
-        Intent intent = new Intent(this, ScanActivity.class);
-        intent.putExtra("from", "json");
-        startActivityForResult(intent, 100);
+        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
+
     }
-
-
-    private BroadcastReceiver mBleStateChangeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int bleState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-            switch (bleState) {
-                case BluetoothAdapter.STATE_TURNING_ON:
-                    Log.d(TAG, " BroadcastReceiver STATE_TURNING_ON");
-                    //要等STATE_ON才能开始连接
-                    break;
-                case BluetoothAdapter.STATE_ON:
-                    Log.d(TAG, " BroadcastReceiver STATE_ON");
-//                    startConnect();
-                    break;
-                case BluetoothAdapter.STATE_TURNING_OFF:
-                    Log.d(TAG, " BroadcastReceiver STATE_TURNING_OFF");
-                    if (device == null) {
-                        return;
-                    }
-                    device.disconnect(null);
-                    break;
-                case BluetoothAdapter.STATE_OFF:
-                    Log.d(TAG, " BroadcastReceiver STATE_OFF");
-                    if (device == null) {
-                        return;
-                    }
-                    if (device.isConnected()) {
-                        device.disconnect(null);
-                    }
-                    break;
-                default:
-            }
-        }
-    };
 
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == 100) {
-                if (data != null && data.hasExtra("mac")) {
-                    String mac = data.getStringExtra("mac");
-                    if (!TextUtils.isEmpty(mac)) {
-                        startConnect(mac);
-                    }
-                }
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume");
+        if (PrefsDevice.hasDevice()) {
+            Intent intent = new Intent(this, CoreService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
             }
+        }
+        initConnectStatus();
+    }
+
+    private void initConnectStatus() {
+        if (!BleUtil.isBleEnabled()) {
+            setDeviceConnectStatus("蓝牙已关闭");
+            return;
+        }
+
+        if (DeviceManager.getInstance().isLogin()) {
+            setDeviceConnectStatus("已连接");
+        } else {
+            setDeviceConnectStatus("未连接");
         }
     }
 
-    private void startConnect(String mac) {
-        device = new JsonDevice();
-        device.setMac(mac);
-        device.setDeviceConnectListener(new DeviceConnectListener() {
-            @Override
-            public void onConnecting() {
-                BleLogger.i(TAG, "onConnecting");
-            }
 
-            @Override
-            public void onLoginSuccess() {
-                BleLogger.i(TAG, "onConnected");
+    private void setDeviceConnectStatus(String status) {
+        if (isActivityAvailable()) {
+            tvConnectStatus.setText(DeviceManager.getInstance().getDevice().getMac() + "  " + status);
+        }
+    }
 
-            }
 
-            @Override
-            public void onDisconnected(BleError error) {
-                BleLogger.i(TAG, "onDisconnected " + error);
-
-            }
-
-            @Override
-            public void onFailure(BleError error) {
-                BleLogger.i(TAG, "onFailure " + error);
-
-            }
-
-        });
-        device.startConnect(new AsyncProtocolCallback<Void, BleError>() {
-            @Override
-            public void onSuccess(Void result) {
-                BleLogger.i(TAG, "onSuccess ");
-
-            }
-
-            @Override
-            public void onFailure(BleError error) {
-                BleLogger.e(TAG, "onFailure " + error);
-
-            }
-        });
+    private boolean isActivityAvailable() {
+        return !isFinishing() && !isDestroyed();
     }
 
     @OnClick({R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,})
@@ -188,12 +148,9 @@ public class JsonDeviceActivity extends AppCompatActivity {
     }
 
     public void scan(View v) {
-        if(device != null){
-            device.disconnect(null);
-        }
+        DeviceManager.getInstance().getDevice().disconnect(null);
         Intent intent = new Intent(this, ScanActivity.class);
-        intent.putExtra("from", "json");
-        startActivityForResult(intent, 100);
+        startActivity(intent);
     }
 
     public void coordinate_click(View v) {
@@ -202,12 +159,12 @@ public class JsonDeviceActivity extends AppCompatActivity {
             return;
         }
 
-        if(TextUtils.isEmpty(inPutStr)){
+        if (TextUtils.isEmpty(inPutStr)) {
             return;
         }
-        if (device != null) {
-            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-//            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+        if (DeviceManager.getInstance().getDevice() != null) {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(inPutStr, new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
@@ -224,171 +181,144 @@ public class JsonDeviceActivity extends AppCompatActivity {
     }
 
     public void up_slip(View v) {
-        if (device != null) {
-            device.sendJson(buildJson("touch","down","160","320"), new AsyncProtocolCallback<String, BleError>() {
+        if (DeviceManager.getInstance().getDevice() != null) {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "320"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
                 }
+
                 @Override
                 public void onFailure(BleError error) {
                 }
             });
         }
 
-        if(device == null){
-            return;
+        String[] tags = new String[]{"280", "240", "200", "160", "120", "80", "40"};
+        for (String s : tags) {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        String[] tags = new String[]{"280","240","200","160","120","80","40"};
-            for (String s : tags) {
-                device.sendJson(buildJson("touch", "move", "160", s), null);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "0"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
+
             }
 
-        if (device != null) {
-            device.sendJson(buildJson("touch","up","160","0"), new AsyncProtocolCallback<String, BleError>() {
-                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-                @Override
-                public void onSuccess(String result) {
-                    BleLogger.i(TAG, "sendJson onSuccess " + result);
-
-                }
-
-                @Override
-                public void onFailure(BleError error) {
+            @Override
+            public void onFailure(BleError error) {
 
 
-                }
-            });
-        }
+            }
+        });
 
     }
+
     public void down_slip(View v) {
-        if (device != null) {
-            device.sendJson(buildJson("touch","down","160","0"), new AsyncProtocolCallback<String, BleError>() {
-                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-                @Override
-                public void onSuccess(String result) {
-                    BleLogger.i(TAG, "sendJson onSuccess " + result);
-                }
-                @Override
-                public void onFailure(BleError error) {
-                }
-            });
-        }
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "0"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
+            }
 
-        if(device == null){
-            return;
-        }
-        String[] tags = new String[]{"40","80","120","160","200","240","280"};
+            @Override
+            public void onFailure(BleError error) {
+            }
+        });
+        String[] tags = new String[]{"40", "80", "120", "160", "200", "240", "280"};
         for (String s : tags) {
-            device.sendJson(buildJson("touch", "move", "160", s), null);
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
         }
 
-        if (device != null) {
-            device.sendJson(buildJson("touch","up","160","320"), new AsyncProtocolCallback<String, BleError>() {
-                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-                @Override
-                public void onSuccess(String result) {
-                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "320"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
 
-                }
+            }
 
-                @Override
-                public void onFailure(BleError error) {
+            @Override
+            public void onFailure(BleError error) {
 
 
-                }
-            });
-        }
-
+            }
+        });
     }
 
     public void right_slip(View v) {
-        if (device != null) {
-            device.sendJson(buildJson("touch","down","160","0"), new AsyncProtocolCallback<String, BleError>() {
-                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-                @Override
-                public void onSuccess(String result) {
-                    BleLogger.i(TAG, "sendJson onSuccess " + result);
-                }
-                @Override
-                public void onFailure(BleError error) {
-                }
-            });
-        }
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "0"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
+            }
 
-        if(device == null){
-            return;
-        }
-        String[] tags = new String[]{"40","80","120","160","200","240","280"};
+            @Override
+            public void onFailure(BleError error) {
+            }
+        });
+        String[] tags = new String[]{"40", "80", "120", "160", "200", "240", "280"};
         for (String s : tags) {
-            device.sendJson(buildJson("touch", "move", "160", s), null);
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
         }
 
-        if (device != null) {
-            device.sendJson(buildJson("touch","up","160","320"), new AsyncProtocolCallback<String, BleError>() {
-                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-                @Override
-                public void onSuccess(String result) {
-                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "320"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
 
-                }
+            }
 
-                @Override
-                public void onFailure(BleError error) {
+            @Override
+            public void onFailure(BleError error) {
 
 
-                }
-            });
-        }
-
+            }
+        });
     }
 
     public void left_slip(View v) {
-        if (device != null) {
-            device.sendJson(buildJson("touch","down","320","160"), new AsyncProtocolCallback<String, BleError>() {
-                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-                @Override
-                public void onSuccess(String result) {
-                    BleLogger.i(TAG, "sendJson onSuccess " + result);
-                }
-                @Override
-                public void onFailure(BleError error) {
-                }
-            });
-        }
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "320", "160"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
+            }
 
-        if(device == null){
-            return;
-        }
-        String[] tags = new String[]{"280","240","200","160","120","80","40"};
+            @Override
+            public void onFailure(BleError error) {
+            }
+        });
+        String[] tags = new String[]{"280", "240", "200", "160", "120", "80", "40"};
         for (String s : tags) {
-            device.sendJson(buildJson("touch", "move", s, "160"), null);
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", s, "160"), null);
         }
 
-        if (device != null) {
-            device.sendJson(buildJson("touch","up","0","160"), new AsyncProtocolCallback<String, BleError>() {
-                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-                @Override
-                public void onSuccess(String result) {
-                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "0", "160"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
 
-                }
+            }
 
-                @Override
-                public void onFailure(BleError error) {
+            @Override
+            public void onFailure(BleError error) {
 
 
-                }
-            });
-        }
-
+            }
+        });
     }
 
     private int getId() {
@@ -401,7 +331,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private String buildJson(String method, Object gesture,  String x, String y)  {
+    private String buildJson(String method, Object gesture, String x, String y) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("id", getId());
@@ -422,10 +352,6 @@ public class JsonDeviceActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mBleStateChangeReceiver);
-        if (device == null) {
-            return;
-        }
-        device.disconnect(null);
+        DeviceManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
     }
 }
