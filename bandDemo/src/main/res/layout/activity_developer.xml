@@ -15,12 +15,35 @@
         android:layout_height="wrap_content"
         android:text="扫描" />
 
-
     <Button
-        android:id="@+id/btn_test"
+        android:id="@+id/btn_right_slip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="执行" />
+        android:text="右滑" />
+
+    <Button
+        android:id="@+id/btn_left_slip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="左滑" />
+
+    <Button
+        android:id="@+id/btn_up_slip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="上滑" />
+
+    <Button
+        android:id="@+id/btn_down_slip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="下滑" />
+
+    <Button
+        android:id="@+id/btn_click"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="坐标点击" />
 
     <EditText
         android:id="@+id/et_input"

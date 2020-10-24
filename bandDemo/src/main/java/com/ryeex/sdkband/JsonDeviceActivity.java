@@ -159,7 +159,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
         });
     }
 
-    @OnClick({R.id.btn_scan, R.id.btn_test,})
+    @OnClick({R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,})
     public void onClick(View v) {
         inPutStr = etInput.getText().toString();
         Log.i(TAG, "inPutStr:" + inPutStr);
@@ -167,8 +167,8 @@ public class JsonDeviceActivity extends AppCompatActivity {
             case R.id.btn_scan:
                 scan(v);
                 break;
-            case R.id.btn_test:
-                test(v);
+            case R.id.btn_click:
+                coordinate_click(v);
                 break;
             default:
         }
@@ -183,7 +183,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
         startActivityForResult(intent, 100);
     }
 
-    public void test(View v) {
+    public void coordinate_click(View v) {
         if (inPutStr.isEmpty()) {
             Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
             return;
@@ -208,6 +208,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
                 }
             });
         }
+
     }
 
 

@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @OnClick({R.id.bnt_pb, R.id.bnt_json})
+    @OnClick({R.id.bnt_pb, R.id.bnt_json,})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bnt_pb:
