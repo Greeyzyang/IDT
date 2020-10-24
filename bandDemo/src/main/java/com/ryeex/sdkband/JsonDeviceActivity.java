@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -170,6 +171,18 @@ public class JsonDeviceActivity extends AppCompatActivity {
             case R.id.btn_click:
                 coordinate_click(v);
                 break;
+            case R.id.btn_down_slip:
+                down_slip(v);
+                break;
+            case R.id.btn_left_slip:
+                left_slip(v);
+                break;
+            case R.id.btn_right_slip:
+                right_slip(v);
+                break;
+            case R.id.btn_up_slip:
+                up_slip(v);
+                break;
             default:
         }
     }
@@ -208,9 +221,171 @@ public class JsonDeviceActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void up_slip(View v) {
+        if (device != null) {
+            device.sendJson(buildJson("touch","down","160","320"), new AsyncProtocolCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                }
+                @Override
+                public void onFailure(BleError error) {
+                }
+            });
+        }
+
+        if(device == null){
+            return;
+        }
+        String[] tags = new String[]{"280","240","200","160","120","80","40"};
+            for (String s : tags) {
+                device.sendJson(buildJson("touch", "move", "160", s), null);
+            }
+
+        if (device != null) {
+            device.sendJson(buildJson("touch","up","160","0"), new AsyncProtocolCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+
+
+                }
+            });
+        }
 
     }
 
+    public void down_slip(View v) {
+        if (device != null) {
+            device.sendJson(buildJson("touch","down","160","0"), new AsyncProtocolCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                }
+                @Override
+                public void onFailure(BleError error) {
+                }
+            });
+        }
+
+        if(device == null){
+            return;
+        }
+        String[] tags = new String[]{"40","80","120","160","200","240","280"};
+        for (String s : tags) {
+            device.sendJson(buildJson("touch", "move", "160", s), null);
+        }
+
+        if (device != null) {
+            device.sendJson(buildJson("touch","up","160","320"), new AsyncProtocolCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+
+
+                }
+            });
+        }
+
+    }
+
+    public void right_slip(View v) {
+        if (device != null) {
+            device.sendJson(buildJson("touch","down","160","0"), new AsyncProtocolCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                }
+                @Override
+                public void onFailure(BleError error) {
+                }
+            });
+        }
+
+        if(device == null){
+            return;
+        }
+        String[] tags = new String[]{"40","80","120","160","200","240","280"};
+        for (String s : tags) {
+            device.sendJson(buildJson("touch", "move", "160", s), null);
+        }
+
+        if (device != null) {
+            device.sendJson(buildJson("touch","up","160","320"), new AsyncProtocolCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+
+
+                }
+            });
+        }
+
+    }
+
+    public void left_slip(View v) {
+        if (device != null) {
+            device.sendJson(buildJson("touch","down","320","160"), new AsyncProtocolCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                }
+                @Override
+                public void onFailure(BleError error) {
+                }
+            });
+        }
+
+        if(device == null){
+            return;
+        }
+        String[] tags = new String[]{"280","240","200","160","120","80","40"};
+        for (String s : tags) {
+            device.sendJson(buildJson("touch", "move", s, "160"), null);
+        }
+
+        if (device != null) {
+            device.sendJson(buildJson("touch","up","0","160"), new AsyncProtocolCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+
+
+                }
+            });
+        }
+
+    }
 
     private int getId() {
         int id = RandomUtil.randomInt(100000);
