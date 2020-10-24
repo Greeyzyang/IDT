@@ -243,6 +243,11 @@ public class JsonDeviceActivity extends AppCompatActivity {
         String[] tags = new String[]{"280","240","200","160","120","80","40"};
             for (String s : tags) {
                 device.sendJson(buildJson("touch", "move", "160", s), null);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
         if (device != null) {
@@ -263,7 +268,6 @@ public class JsonDeviceActivity extends AppCompatActivity {
         }
 
     }
-
     public void down_slip(View v) {
         if (device != null) {
             device.sendJson(buildJson("touch","down","160","0"), new AsyncProtocolCallback<String, BleError>() {
