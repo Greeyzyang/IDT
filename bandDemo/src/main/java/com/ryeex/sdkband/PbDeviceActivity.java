@@ -35,6 +35,7 @@ import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.handler.BleHandler;
 import com.ryeex.ble.connector.utils.BleUtil;
+import com.ryeex.ble.connector.utils.RandomUtil;
 import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.FwVerUtil;
@@ -43,6 +44,9 @@ import com.ryeex.sdkband.utils.NotificationConst;
 import com.ryeex.sdkband.utils.NotificationUtil;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,7 +68,7 @@ public class PbDeviceActivity extends AppCompatActivity {
     TextView tvResult;
 
     private final int MSG_REBOOT = 100;
-
+    private List<Integer> idList = new ArrayList<>();
     private String fileDir = BleEngine.getAppContext().getFilesDir().getPath() + File.separator + "update";
 
 
@@ -181,7 +185,7 @@ public class PbDeviceActivity extends AppCompatActivity {
             R.id.tv_find_device, R.id.tv_reboot_device, R.id.tv_send_notification, R.id.tv_app_list, R.id.tv_set_app_list,
             R.id.tv_ota, R.id.tv_getDoNotDisturb, R.id.tv_setDoNotDisturb, R.id.tv_getDeviceRaiseToWake, R.id.tv_setDeviceRaiseToWake,
             R.id.tv_getHeartRateDetect, R.id.tv_setHeartRateDetect, R.id.tv_getDeviceBrightness, R.id.tv_setDeviceBrightness,
-            R.id.tv_getHomeVibrateSetting, R.id.tv_setHomeVibrateSetting, R.id.tv_setUnlock, R.id.tv_getUnlock, R.id.tv_getSurfaceList
+            R.id.tv_getHomeVibrateSetting, R.id.tv_setHomeVibrateSetting, R.id.tv_setUnlock, R.id.tv_getUnlock, R.id.tv_getSurfaceList, R.id.send_json
     })
     public void onClick(View v) {
         setTextResult("");
@@ -257,6 +261,9 @@ public class PbDeviceActivity extends AppCompatActivity {
                 break;
             case R.id.tv_getSurfaceList:
                 getSurfaceList(v);
+                break;
+            case R.id.send_json:
+                sendJson(v);
                 break;
             default:
         }
@@ -939,6 +946,53 @@ public class PbDeviceActivity extends AppCompatActivity {
         });
     }
 
+
+
+    private void sendJson(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        String json = buildJson("get_device_info", "sn");
+        Log.i(TAG, "sendJson json:" + json);
+        DeviceManager.getInstance().getDevice().sendJsonRequest(json, new AsyncBleCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                Log.i(TAG, "sendJson onSuccess:" + result);
+                setTextResult(result);
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "sendJson onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+
+
+    private int getId() {
+        int id = RandomUtil.randomInt(100000);
+        if (!idList.contains(id)) {
+            idList.add(id);
+            return id;
+        } else {
+            return getId();
+        }
+    }
+
+    private String buildJson(String method, Object param) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", getId());
+            jsonObject.put("method", method);
+            jsonObject.put("para", param);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject.toString();
+    }
 
     private void setDeviceConnectStatus(String status) {
         if (isActivityAvailable()) {
