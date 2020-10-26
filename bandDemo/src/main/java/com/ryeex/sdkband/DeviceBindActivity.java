@@ -111,11 +111,12 @@ public class DeviceBindActivity extends AppCompatActivity {
 
     public void finishBind(View view) {
         Intent intent;
-        if (TextUtils.equals("json", from)) {
-            intent = new Intent(this, PbDeviceActivity.class);
-        } else {
-            intent = new Intent(this, JsonDeviceActivity.class);
-        }
+//        if (TextUtils.equals("json", from)) {
+//            intent = new Intent(this, PbDeviceActivity.class);
+//        } else {
+//            intent = new Intent(this, JsonDeviceActivity.class);
+//        }
+        intent = new Intent(this, JsonDeviceActivity.class);
         startActivity(intent);
         finish();
     }

@@ -121,7 +121,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
         return !isFinishing() && !isDestroyed();
     }
 
-    @OnClick({R.id.btn_unbind, R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,})
+    @OnClick({R.id.btn_unbind, R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip, R.id.btn_long_press,})
     public void onClick(View v) {
         inPutStr = etInput.getText().toString();
         Log.i(TAG, "inPutStr:" + inPutStr);
@@ -146,6 +146,9 @@ public class JsonDeviceActivity extends AppCompatActivity {
                 break;
             case R.id.btn_up_slip:
                 up_slip();
+                break;
+            case R.id.btn_long_press:
+                long_press();
                 break;
             default:
         }
@@ -203,9 +206,9 @@ public class JsonDeviceActivity extends AppCompatActivity {
         }
     }
 
-    public void up_slip() {
+    public void long_press() {
         if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "320"), new AsyncBleCallback<String, BleError>() {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "315"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -217,18 +220,46 @@ public class JsonDeviceActivity extends AppCompatActivity {
                 }
             });
         }
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", "310"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
 
-        String[] tags = new String[]{"300","280","260","240","220","200","180","160","140","120","100","80","60","40","20"};
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+
+
+            }
+        });
+    }
+    public void up_slip() {
+        if (DeviceManager.getInstance().getDevice() != null) {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "315"), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+                }
+            });
+        }
+        String[] tags = new String[]{"285","150","35"};
         for (String s : tags) {
             DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(50);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
 
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "0"), new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "5"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -246,7 +277,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
     }
 
     public void down_slip() {
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "0"), new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "5"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -257,12 +288,12 @@ public class JsonDeviceActivity extends AppCompatActivity {
             public void onFailure(BleError error) {
             }
         });
-        String[] tags = new String[]{"40", "80", "120", "160", "200", "240", "280"};
+        String[] tags = new String[]{"35","150","285"};
         for (String s : tags) {
             DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
         }
 
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "320"), new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "315"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -279,7 +310,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
     }
 
     public void right_slip() {
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "0"), new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "5", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -290,12 +321,13 @@ public class JsonDeviceActivity extends AppCompatActivity {
             public void onFailure(BleError error) {
             }
         });
-        String[] tags = new String[]{"40", "80", "120", "160", "200", "240", "280"};
+        String[] tags = new String[]{"35","150","285"};
+//        String[] tags = new String[]{"25","45","60","75","90","105","120","135","150","165","180"};
         for (String s : tags) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", s, "160"), null);
         }
 
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "320"), new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "315", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -312,7 +344,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
     }
 
     public void left_slip() {
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "320", "160"), new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "315", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -323,12 +355,13 @@ public class JsonDeviceActivity extends AppCompatActivity {
             public void onFailure(BleError error) {
             }
         });
-        String[] tags = new String[]{"280", "240", "200", "160", "120", "80", "40"};
+        String[] tags = new String[]{"285","150","35"};
+//        String[] tags = new String[]{"295","285","270","260","240","225","210","195","180","165","150","135", "120", "105","90","75","60","45","25"};
         for (String s : tags) {
             DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", s, "160"), null);
         }
 
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "0", "160"), new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "5", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
