@@ -10,7 +10,9 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,18 +20,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ryeex.band.adapter.model.entity.BodyStatus;
 import com.ryeex.band.adapter.model.entity.DeviceDataSet;
 import com.ryeex.band.adapter.model.entity.DeviceSurfaceInfo;
+import com.ryeex.band.protocol.pb.entity.PBProperty;
 import com.ryeex.ble.common.device.DeviceConnectListener;
 import com.ryeex.ble.common.device.IResultCallback;
 import com.ryeex.ble.common.device.OnDataSyncListener;
 import com.ryeex.ble.common.model.entity.AppNotification;
 import com.ryeex.ble.common.model.entity.DeviceActivities;
+import com.ryeex.ble.common.model.entity.DeviceAlarmClockInfo;
 import com.ryeex.ble.common.model.entity.DeviceBrightness;
 import com.ryeex.ble.common.model.entity.DeviceInfo;
 import com.ryeex.ble.common.model.entity.DeviceProperty;
+import com.ryeex.ble.common.model.entity.DeviceRunState;
 import com.ryeex.ble.common.model.entity.DoNotDisturbSetting;
 import com.ryeex.ble.common.model.entity.FirmwareUpdateInfo;
 import com.ryeex.ble.common.model.entity.HeartRateSetting;
 import com.ryeex.ble.common.model.entity.RaiseToWakeSetting;
+import com.ryeex.ble.common.model.entity.SitRemindSetting;
+import com.ryeex.ble.common.model.entity.UserConfig;
 import com.ryeex.ble.connector.BleEngine;
 import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
@@ -66,6 +73,9 @@ public class PbDeviceActivity extends AppCompatActivity {
     TextView tvConnectStatus;
     @BindView(R.id.tv_result)
     TextView tvResult;
+    @BindView(R.id.et_input)
+    EditText etInput;
+    String inPutStr;
 
     private final int MSG_REBOOT = 100;
     private List<Integer> idList = new ArrayList<>();
@@ -129,10 +139,10 @@ public class PbDeviceActivity extends AppCompatActivity {
                 copyAssets("726.ry");
             }
         });
-        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
-        if (!PrefsDevice.hasDevice()) {
-            startActivity(new Intent(this, ScanActivity.class));
-        }
+//        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
+//        if (!PrefsDevice.hasDevice()) {
+//            startActivity(new Intent(this, ScanActivity.class));
+//        }   //禁止进入PB界面时自动进入扫描页面
     }
 
     @Override
@@ -185,10 +195,16 @@ public class PbDeviceActivity extends AppCompatActivity {
             R.id.tv_find_device, R.id.tv_reboot_device, R.id.tv_send_notification, R.id.tv_app_list, R.id.tv_set_app_list,
             R.id.tv_ota, R.id.tv_getDoNotDisturb, R.id.tv_setDoNotDisturb, R.id.tv_getDeviceRaiseToWake, R.id.tv_setDeviceRaiseToWake,
             R.id.tv_getHeartRateDetect, R.id.tv_setHeartRateDetect, R.id.tv_getDeviceBrightness, R.id.tv_setDeviceBrightness,
-            R.id.tv_getHomeVibrateSetting, R.id.tv_setHomeVibrateSetting, R.id.tv_setUnlock, R.id.tv_getUnlock, R.id.tv_getSurfaceList, R.id.send_json
+            R.id.tv_getHomeVibrateSetting, R.id.tv_setHomeVibrateSetting, R.id.tv_setUnlock, R.id.tv_getUnlock,
+            R.id.tv_setUserConfig, R.id.tv_getUserConfig, R.id.tv_setSitRemindSetting, R.id.tv_getSitRemindSetting,
+            R.id.tv_setGoalRemindSetting, R.id.tv_getGoalRemindSetting, R.id.tv_setTargetStep, R.id.tv_getTargetStep,
+            R.id.tv_setWeatherNotifyStatus, R.id.tv_getWeatherNotifyStatus, R.id.tv_getDeviceRunState, R.id.tv_getDeviceLogFile,
+//            R.id.tv_getSurfaceList, R.id.send_json,
     })
     public void onClick(View v) {
         setTextResult("");
+        inPutStr = etInput.getText().toString();
+        Log.i(TAG, "inPutStr:" + inPutStr);
         switch (v.getId()) {
             case R.id.tv_unbind:
                 unbindDevice(v);
@@ -259,12 +275,54 @@ public class PbDeviceActivity extends AppCompatActivity {
             case R.id.tv_getUnlock:
                 getUnlockType(v);
                 break;
-            case R.id.tv_getSurfaceList:
-                getSurfaceList(v);
+            case R.id.tv_getDeviceAlarmClockList:
+                getDeviceAlarmClockList(v);
                 break;
-            case R.id.send_json:
-                sendJson(v);
+            case R.id.tv_saveDeviceAlarmClock:
+                saveDeviceAlarmClock(v);
                 break;
+            case R.id.tv_deleteDeviceAlarmClock:
+                deleteDeviceAlarmClock(v);
+                break;
+            case R.id.tv_setUserConfig:
+                setUserConfig(v);
+                break;
+            case R.id.tv_getUserConfig:
+                getUserConfig(v);
+                break;
+            case R.id.tv_setSitRemindSetting:
+                setSitRemindSetting(v);
+                break;
+            case R.id.tv_getSitRemindSetting:
+                getSitRemindSetting(v);
+                break;
+            case R.id.tv_setGoalRemindSetting:
+                setGoalRemindSetting(v);
+                break;
+            case R.id.tv_getGoalRemindSetting:
+                getGoalRemindSetting(v);
+                break;
+            case R.id.tv_setTargetStep:
+                setTargetStep(v);
+                break;
+            case R.id.tv_getTargetStep:
+                getTargetStep(v);
+                break;
+            case R.id.tv_setWeatherNotifyStatus:
+                setWeatherNotifyStatus(v);
+                break;
+            case R.id.tv_getWeatherNotifyStatus:
+                getWeatherNotifyStatus(v);
+                break;
+            case R.id.tv_getDeviceRunState:
+                getDeviceRunState(v);
+                break;
+            case R.id.tv_getDeviceLogFile:
+                getDeviceLogFile(v);
+                break;
+//            case R.id.send_json:
+//                sendJson(v);
+//                break;
             default:
         }
     }
@@ -440,6 +498,7 @@ public class PbDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "findDevice onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -458,6 +517,7 @@ public class PbDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "rebootDevice onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -471,68 +531,77 @@ public class PbDeviceActivity extends AppCompatActivity {
     }
 
     private void sendNotification(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        AppNotification appNotification = GSON.parseObject(inPutStr, AppNotification.class);
 
-        //app消息
-        String title = "测试title";
-        String text = "测试text";
-        String appKey = NotificationUtil.getAppKeyByPackageName(NotificationConst.PACKAGE_NAME_WX, "");
-        AppNotification appNotification = new AppNotification();
-        appNotification.setType(AppNotification.Type.APP_MESSAGE);
-        AppNotification.AppMessage appMessage = new AppNotification.AppMessage();
-        appMessage.setAppId(appKey);
+//        //app消息
+//        String title = "测试title";
+//        String text = "测试text";
+//        String appKey = NotificationUtil.getAppKeyByPackageName(NotificationConst.PACKAGE_NAME_WX, "");
+//        AppNotification appNotification = new AppNotification();
+//        appNotification.setType(AppNotification.Type.APP_MESSAGE);
+//        AppNotification.AppMessage appMessage = new AppNotification.AppMessage();
+//        appMessage.setAppId(appKey);
+//
+//        if (!TextUtils.isEmpty(title)) {
+//            if (title.length() <= 50) {
+//                appMessage.setTitle(title);
+//            } else {
+//                String maxTitle = title.substring(0, 46) + "...";
+//                appMessage.setTitle(maxTitle);
+//            }
+//        }
+//        if (!TextUtils.isEmpty(text)) {
+//            if (text.length() <= 400) {
+//                appMessage.setText(text);
+//            } else {
+//                String maxText = text.substring(0, 395) + "...";
+//                appMessage.setText(maxText);
+//            }
+//        }
+//        appNotification.setAppMessage(appMessage);
 
-        if (!TextUtils.isEmpty(title)) {
-            if (title.length() <= 50) {
-                appMessage.setTitle(title);
-            } else {
-                String maxTitle = title.substring(0, 46) + "...";
-                appMessage.setTitle(maxTitle);
-            }
-        }
-        if (!TextUtils.isEmpty(text)) {
-            if (text.length() <= 400) {
-                appMessage.setText(text);
-            } else {
-                String maxText = text.substring(0, 395) + "...";
-                appMessage.setText(maxText);
-            }
-        }
-        appNotification.setAppMessage(appMessage);
 
-/*
-        //来电
-        AppNotification appNotification = new AppNotification();
-        appNotification.setType(AppNotification.Type.TELEPHONY);
-        AppNotification.Telephony telephony = new AppNotification.Telephony();
-        //联系人
-        telephony.setContact("文杰");
-        //来电号码
-        telephony.setNumber("1234567");
-        // CONNECTED 接听
-        // DISCONNECTED 挂断
-        // RINGING_UNANSWERABLE 响铃
-        //根据来电状态更改
-        telephony.setStatus(AppNotification.Telephony.Status.RINGING_UNANSWERABLE);
-        appNotification.setTelephony(telephony);*/
+//        //来电
+//        AppNotification appNotification = new AppNotification();
+//        appNotification.setType(AppNotification.Type.TELEPHONY);
+//        AppNotification.Telephony telephony = new AppNotification.Telephony();
+//        //联系人
+//        telephony.setContact("文杰");
+//        //来电号码
+//        telephony.setNumber("1234567");
+//        // CONNECTED 接听
+//        // DISCONNECTED 挂断
+//        // RINGING_UNANSWERABLE 响铃
+//        //根据来电状态更改
+//        telephony.setStatus(AppNotification.Telephony.Status.RINGING_UNANSWERABLE);
+//        appNotification.setTelephony(telephony);
 
-        /*//短信
-        AppNotification appNotification = new AppNotification();
-        appNotification.setType(AppNotification.Type.SMS);
-        AppNotification.Sms sms = new AppNotification.Sms();
-        //联系人
-        sms.setContact("文杰");
-        //短信内容
-        sms.setContent("测试短信");
-        //来信号码
-        sms.setSender("1234567");
-        appNotification.setSms(sms);*/
+//        //短信
+//        AppNotification appNotification = new AppNotification();
+//        appNotification.setType(AppNotification.Type.SMS);
+//        AppNotification.Sms sms = new AppNotification.Sms();
+//        //联系人
+//        sms.setContact("文杰");
+//        //短信内容
+//        sms.setContent("测试短信");
+//        //来信号码
+//        sms.setSender("1234567");
+//        appNotification.setSms(sms);
+
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(appNotification));
 
 
         DeviceManager.getInstance().getDevice().sendNotification(appNotification, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "sendNotification onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -570,12 +639,25 @@ public class PbDeviceActivity extends AppCompatActivity {
 
 
     private void setDeviceAppList(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        String[] arr = inPutStr.split(",");
+        List<Integer> deviceAppList = new ArrayList<Integer>();
+        for (String s : arr) {
+            deviceAppList.add(Integer.parseInt(s));
+        }
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
         if (deviceAppList != null) {
+//        if (deviceAppList != null) {
             DeviceManager.getInstance().getDevice().setDeviceAppList(deviceAppList, new AsyncBleCallback<Void, BleError>() {
+                //            DeviceManager.getInstance().getDevice().setDeviceAppList(deviceAppList, new AsyncBleCallback<Void, BleError>() {
                 @Override
                 public void onSuccess(Void result) {
                     Log.i(TAG, "setDeviceAppList onSuccess");
+                    setTextResult("set success");
                     view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
                 }
 
@@ -686,32 +768,38 @@ public class PbDeviceActivity extends AppCompatActivity {
 
 
     private void setDoNotDisturb(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DoNotDisturbSetting doNotDisturbSetting = new DoNotDisturbSetting();
-
+        DoNotDisturbSetting doNotDisturbSetting = GSON.parseObject(inPutStr, DoNotDisturbSetting.class);
+//        DoNotDisturbSetting doNotDisturbSetting = new DoNotDisturbSetting();
             /*
             DISABLE = 0; // 关闭
             SMART = 1;   // 智能模式
             TIMING = 2;  // 定时模式  需要设置时间段
             ALWAYS = 3; // 一直开启
             */
-        doNotDisturbSetting.setMode(DoNotDisturbSetting.DndMode.TIMING);
+//        doNotDisturbSetting.setMode(DoNotDisturbSetting.DndMode.DISABLE);
+//        List<DoNotDisturbSetting.DndDuration> dndDurations = new ArrayList<>();
+//        //如果是TIMING模式则需要设置时间段
+//        DoNotDisturbSetting.DndDuration dndDuration = new DoNotDisturbSetting.DndDuration();
+//        //开始与结束时间 hour:0-24 Minute:0-60  可设置多个时间段
+//        dndDuration.setStartTimeHour(10);
+//        dndDuration.setStartTimeMinute(30);
+//        dndDuration.setEndTimeHour(12);
+//        dndDuration.setEndTimeMinute(30);
+//        dndDurations.add(dndDuration);
+//        doNotDisturbSetting.setDurations(dndDurations);
 
-        List<DoNotDisturbSetting.DndDuration> dndDurations = new ArrayList<>();
-        //如果是TIMING模式则需要设置时间段
-        DoNotDisturbSetting.DndDuration dndDuration = new DoNotDisturbSetting.DndDuration();
-        //开始与结束时间 hour:0-24 Minute:0-60  可设置多个时间段
-        dndDuration.setStartTimeHour(10);
-        dndDuration.setStartTimeMinute(30);
-        dndDuration.setEndTimeHour(12);
-        dndDuration.setEndTimeMinute(30);
-        dndDurations.add(dndDuration);
-        doNotDisturbSetting.setDurations(dndDurations);
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(doNotDisturbSetting));
 
         DeviceManager.getInstance().getDevice().setDeviceDoNotDisturb(doNotDisturbSetting, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setDoNotDisturb onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -745,20 +833,27 @@ public class PbDeviceActivity extends AppCompatActivity {
     }
 
     private void setDeviceRaiseToWake(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-
-        RaiseToWakeSetting raiseToWakeSetting = new RaiseToWakeSetting();
-        raiseToWakeSetting.setEnable(true);
+        RaiseToWakeSetting raiseToWakeSetting = GSON.parseObject(inPutStr, RaiseToWakeSetting.class);
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//
+//        RaiseToWakeSetting raiseToWakeSetting = new RaiseToWakeSetting();
+//        raiseToWakeSetting.setEnable(false);
         //开始与结束时间 hour:0-24 Minute:0-60
-        raiseToWakeSetting.setStartTimeHour(10);
-        raiseToWakeSetting.setStartTimeMinute(10);
-        raiseToWakeSetting.setEndTimeHour(12);
-        raiseToWakeSetting.setEndTimeMinute(12);
+//        raiseToWakeSetting.setStartTimeHour(10);
+//        raiseToWakeSetting.setStartTimeMinute(10);
+//        raiseToWakeSetting.setEndTimeHour(12);
+//        raiseToWakeSetting.setEndTimeMinute(12);
 
         DeviceManager.getInstance().getDevice().setDeviceRaiseToWake(raiseToWakeSetting, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setDeviceRaiseToWake onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -770,7 +865,6 @@ public class PbDeviceActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private void getHeartRateDetect(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
@@ -792,15 +886,22 @@ public class PbDeviceActivity extends AppCompatActivity {
     }
 
     private void setHeartRateDetect(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        HeartRateSetting heartRateSetting = new HeartRateSetting();
-        heartRateSetting.setEnable(true);
+        HeartRateSetting heartRateSetting = GSON.parseObject(inPutStr, HeartRateSetting.class);
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        HeartRateSetting heartRateSetting = new HeartRateSetting();
+//        heartRateSetting.setEnable(false);
         //检测间隔  单位分钟
-        heartRateSetting.setInterval(5);
+//        heartRateSetting.setInterval(5);
         DeviceManager.getInstance().getDevice().setHeartRateDetect(heartRateSetting, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setHeartRateDetect onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -833,11 +934,30 @@ public class PbDeviceActivity extends AppCompatActivity {
     }
 
     private void setDeviceBrightness(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().setDeviceBrightness(DeviceBrightness.MID, new AsyncBleCallback<Void, BleError>() {
+        DeviceBrightness deviceBrightness = GSON.parseObject(inPutStr, DeviceBrightness.class);
+//        if (!inPutStr.equalsIgnoreCase("1") && !inPutStr.equalsIgnoreCase("2") && !inPutStr.equalsIgnoreCase("3")) {
+//            Toast.makeText(this, "数据格式错", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        DeviceBrightness deviceBrightness;
+//        if (inPutStr.equalsIgnoreCase("1")) {
+//            deviceBrightness = DeviceBrightness.LOW;
+//        } else if (inPutStr.equalsIgnoreCase("2")) {
+//            deviceBrightness = DeviceBrightness.MID;
+//        } else {
+//            deviceBrightness = DeviceBrightness.HIGH;
+//        }
+        DeviceManager.getInstance().getDevice().setDeviceBrightness(deviceBrightness, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setDeviceBrightness onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -871,11 +991,18 @@ public class PbDeviceActivity extends AppCompatActivity {
     }
 
     private void setHomeVibrateSetting(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().setHomeVibrateSetting(true, new AsyncBleCallback<Void, BleError>() {
+        DeviceManager.getInstance().getDevice().setHomeVibrateSetting(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
+            //        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        DeviceManager.getInstance().getDevice().setHomeVibrateSetting(true, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setHomeVibrateSetting onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -890,12 +1017,19 @@ public class PbDeviceActivity extends AppCompatActivity {
 
 
     private void setUnlockType(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        //0:禁用解锁, 1:上滑解锁
-        DeviceManager.getInstance().getDevice().setUnlockType(1, new AsyncBleCallback<Void, BleError>() {
+        DeviceManager.getInstance().getDevice().setUnlockType(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
+            //        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+            //0:禁用解锁, 1:上滑解锁
+//        DeviceManager.getInstance().getDevice().setUnlockType(1, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setUnlockType onSuccess");
+                setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             }
 
@@ -946,6 +1080,526 @@ public class PbDeviceActivity extends AppCompatActivity {
         });
     }
 
+    private void getDeviceAlarmClockList(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().getDeviceAlarmClockList(new AsyncBleCallback<List<DeviceAlarmClockInfo>, BleError>() {
+            @Override
+            public void onSuccess(List<DeviceAlarmClockInfo> result) {
+                Log.i(TAG, "getDeviceAlarmClockList onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getDeviceAlarmClockList onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void saveDeviceAlarmClock(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceAlarmClockInfo alarmClockInfo = GSON.parseObject(inPutStr, DeviceAlarmClockInfo.class);
+        List<DeviceAlarmClockInfo> alarmClockInfolist = new ArrayList<>();
+        alarmClockInfolist.add(alarmClockInfo);
+//        List<DeviceAlarmClockInfo> alarmClockInfo = new ArrayList<>();
+//        DeviceAlarmClockInfo saveDeviceAlarmClock = new DeviceAlarmClockInfo();
+//        saveDeviceAlarmClock.setId(1);
+//        saveDeviceAlarmClock.setEnable(true);
+//        saveDeviceAlarmClock.setHour(12);
+//        saveDeviceAlarmClock.setMinute(10);
+//        saveDeviceAlarmClock.setTag("go to work");
+//        alarmClockInfo.add(saveDeviceAlarmClock);
+
+
+        DeviceManager.getInstance().getDevice().saveDeviceAlarmClock(alarmClockInfolist, new AsyncBleCallback<Void, BleError>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "saveDeviceAlarmClock onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "saveDeviceAlarmClock onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void deleteDeviceAlarmClock(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().deleteDeviceAlarmClock(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "deleteDeviceAlarmClock onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "deleteDeviceAlarmClock onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void setUserConfig(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        UserConfig userConfig = new UserConfig();
+//        userConfig.setTemperatureType(UserConfig.TemperatureType.C);
+//        UserConfig.TimezoneConfig timezoneConfig =new UserConfig.TimezoneConfig();
+//        timezoneConfig.setAuto(true);
+//        timezoneConfig.setCity("Los AngeLes");
+//        timezoneConfig.setOffset(-28800);
+//        userConfig.setTimezoneConfig(timezoneConfig);
+//        UserConfig.WeatherConfig weatherConfig = new UserConfig.WeatherConfig();
+//        weatherConfig.setAuto(true);
+//        weatherConfig.setCity("Shenzhen");
+//        weatherConfig.setId("1795565");
+//        userConfig.setWeatherConfig(weatherConfig);
+        UserConfig userConfig = GSON.parseObject(inPutStr, UserConfig.class);
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(userConfig));
+        assert userConfig != null;
+        DeviceManager.getInstance().getDevice().setUserConfig(userConfig, new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setUserConfig onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setUserConfig onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void getUserConfig(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().getUserConfig(new AsyncBleCallback<UserConfig, BleError>() {
+            @Override
+            public void onSuccess(UserConfig result) {
+                Log.i(TAG, "getUserConfig onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getUserConfig onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+//    private void deleteSurface(View view) {
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        DeviceManager.getInstance().getDevice().deleteSurface(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
+//
+//            @Override
+//            public void onSuccess(Void result) {
+//                Log.i(TAG, "deleteSurface onSuccess");
+//                setTextResult("set success");
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "deleteSurface onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
+
+    private void setSitRemindSetting(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        SitRemindSetting sitRemindSetting = GSON.parseObject(inPutStr, SitRemindSetting.class);
+//        SitRemindSetting sitRemindSetting = new SitRemindSetting();
+//        sitRemindSetting.setEndTimeHour(-1);
+//        sitRemindSetting.setEndTimeMinute(-1);
+//        sitRemindSetting.setStartTimeHour(-1);
+//        sitRemindSetting.setStartTimeMinute(-1);
+//        sitRemindSetting.isSitRemindEnable();
+
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(sitRemindSetting));
+        DeviceManager.getInstance().getDevice().setSitRemindSetting(sitRemindSetting, new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setSitRemindSetting onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setSitRemindSetting onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void getSitRemindSetting(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().getSitRemindSetting(new AsyncBleCallback<SitRemindSetting, BleError>() {
+            @Override
+            public void onSuccess(SitRemindSetting result) {
+                Log.i(TAG, "getSitRemindSetting onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getSitRemindSetting onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void setGoalRemindSetting(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(sitRemindSetting));
+        DeviceManager.getInstance().getDevice().setGoalRemindSetting(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setGoalRemindSetting onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setGoalRemindSetting onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void getGoalRemindSetting(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().getGoalRemindSetting(new AsyncBleCallback<Boolean, BleError>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                Log.i(TAG, "getGoalRemindSetting onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getGoalRemindSetting onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void setTargetStep(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().setTargetStep(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setTargetStep onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setTargetStep onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void getTargetStep(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().getTargetStep(new AsyncBleCallback<Integer, BleError>() {
+            @Override
+            public void onSuccess(Integer result) {
+                Log.i(TAG, "getTargetStep onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getTargetStep onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void setWeatherNotifyStatus(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().setWeatherNotifyStatus(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setWeatherNotifyStatus onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setWeatherNotifyStatus onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void getWeatherNotifyStatus(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().getWeatherNotifyStatus(new AsyncBleCallback<Boolean, BleError>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                Log.i(TAG, "getWeatherNotifyStatus onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getWeatherNotifyStatus onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void getDeviceRunState(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        //当前主状态, 0:idle(空闲), 1:running(跑步中), 2:ota(固件更新中), 3:se(se操作中), 4:upload_data(同步数据中), 5:repair_res(资源修复中)
+        DeviceManager.getInstance().getDevice().getDeviceRunState(new AsyncBleCallback<DeviceRunState, BleError>() {
+            PBProperty.DeviceSettingBrightNightVal R1000O00000o = new PBProperty.DeviceSettingBrightNightVal();
+
+            @Override
+            public void onSuccess(DeviceRunState result) {
+                Log.i(TAG, "getDeviceRunState onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getDeviceRunState onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+//    private void setVibrateTime(View view) {
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        VibrateTime vibrateTime = GSON.parseObject(inPutStr, VibrateTime.class);
+////        VibrateTime vibrateTime = new VibrateTime();
+////        vibrateTime.setLinkVibrateTime(5);
+////        vibrateTime.setOtherVibrateTime(10);
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(vibrateTime));
+//        DeviceManager.getInstance().getDevice().setVibrateTime(vibrateTime, new AsyncBleCallback<Void, BleError>() {
+//
+//            @Override
+//            public void onSuccess(Void result) {
+//                Log.i(TAG, "setVibrateTime onSuccess");
+//                setTextResult("set success");
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "setVibrateTime onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
+//
+//    private void getVibrateTime(View view) {
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        DeviceManager.getInstance().getDevice().getVibrateTime(new AsyncBleCallback<VibrateTime, BleError>() {
+//            @Override
+//            public void onSuccess(VibrateTime result) {
+//                Log.i(TAG, "getVibrateTime onSuccess");
+//                setTextResult(GSON.toJSONString(result));
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "getVibrateTime onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
+
+//    private void getDeviceName(View view) {
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        DeviceManager.getInstance().getDevice().getDeviceName(new AsyncBleCallback<String, BleError>() {
+//            @Override
+//            public void onSuccess(String result) {
+//                Log.i(TAG, "getDeviceName onSuccess");
+//                setTextResult(GSON.toJSONString(result));
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "getDeviceName onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
+
+//    private void setDeviceName(View view) {
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        DeviceManager.getInstance().getDevice().setDeviceName(inPutStr, new AsyncBleCallback<Void, BleError>() {
+//            @Override
+//            public void onSuccess(Void result) {
+//                Log.i(TAG, "setDeviceName onSuccess");
+//                setTextResult("set success");
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "setDeviceName onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
+
+    //    private void setLinkAppsVibrateEnable(View view) {
+////        if (inPutStr.isEmpty()) {
+////            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+////            return;
+////        }
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        LinkAppsVibrateSetting linkAppsVibrateSetting = new LinkAppsVibrateSetting();
+//        linkAppsVibrateSetting.setAllVibrateEnable(true);
+//        linkAppsVibrateSetting.setLinkVibrateEnable(true);
+//        linkAppsVibrateSetting.setOtherVibrateEnable(true);
+////            LinkAppsVibrateSetting linkAppsVibrateSetting = GSON.parseObject(inPutStr, LinkAppsVibrateSetting.class);
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(linkAppsVibrateSetting));
+//        DeviceManager.getInstance().getDevice().setLinkAppsVibrateEnable(linkAppsVibrateSetting, new AsyncBleCallback<Void, BleError>() {
+//
+//            @Override
+//            public void onSuccess(Void result) {
+//                Log.i(TAG, "setLinkAppsVibrateEnable onSuccess");
+//                setTextResult("set success");
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "setLinkAppsVibrateEnable onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
+//
+//    private void getLinkAppsVibrateEnable(View view) {
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        DeviceManager.getInstance().getDevice().getLinkAppsVibrateEnable(new AsyncBleCallback<LinkAppsVibrateSetting, BleError>() {
+//            @Override
+//            public void onSuccess(LinkAppsVibrateSetting result) {
+//                Log.i(TAG, "getLinkAppsVibrateEnable onSuccess");
+//                setTextResult(GSON.toJSONString(result));
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "getLinkAppsVibrateEnable onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
+    private void getDeviceLogFile(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceManager.getInstance().getDevice().getDeviceLogFile(null, new AsyncBleCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                Log.i(TAG, "getDeviceLogFile onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getDeviceLogFile onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
 
 
     private void sendJson(View view) {

@@ -12,12 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:text="调试PB协议" />
+        android:text="app" />
+<!--    android:text="调试PB协议" />-->
 
     <Button
         android:id="@+id/bnt_json"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:text="调试JSON协议" />
+        android:text="设备" />
+<!--        android:text="调试JSON协议" />-->
 </LinearLayout>

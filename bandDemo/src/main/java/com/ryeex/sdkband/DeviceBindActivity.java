@@ -79,7 +79,7 @@ public class DeviceBindActivity extends AppCompatActivity {
             @Override
             public void onConfirming() {
                 tvStatus.setText("请在设备上点击确认");
-
+                btnFinish.setEnabled(true);
             }
 
             @Override
@@ -98,7 +98,7 @@ public class DeviceBindActivity extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 tvStatus.setText("绑定成功");
-                btnFinish.setEnabled(true);
+//                btnFinish.setEnabled(true);
             }
 
             @Override
