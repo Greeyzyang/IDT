@@ -119,7 +119,9 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         return !isFinishing() && !isDestroyed();
     }
 
-    @OnClick({R.id.btn_unbind, R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip, R.id.btn_long_press,})
+    @OnClick({R.id.btn_unbind, R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,
+            R.id.btn_long_press,
+    })
     public void onClick(View v) {
         inPutStr = etInput.getText().toString();
         Log.i(TAG, "inPutStr:" + inPutStr);
@@ -131,7 +133,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
                 scan();
                 break;
             case R.id.btn_click:
-                coordinate_click();
+                coordinate_clickslip();
                 break;
             case R.id.btn_down_slip:
                 down_slip();
@@ -173,11 +175,11 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     public void scan() {
         DeviceManager.getInstance().getDevice().disconnect(null);
         Intent intent = new Intent(this, ScanActivity.class);
-        intent.putExtra("from", "json");
+//        intent.putExtra("from", "json");
         startActivity(intent);
     }
 
-    public void coordinate_click() {
+    public void coordinate_clickslip() {
         if (inPutStr.isEmpty()) {
             Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
             return;
@@ -222,7 +224,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     }
     public void up_slip() {
         if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "160", "315", "160", "5", "100"), new AsyncBleCallback<String, BleError>() {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "160", "315", "160", "5", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -238,7 +240,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void down_slip() {
         if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "160", "5", "160", "315", "100"), new AsyncBleCallback<String, BleError>() {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "160", "5", "160", "315", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -254,7 +256,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void right_slip() {
         if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "5", "160", "315", "160", "100"), new AsyncBleCallback<String, BleError>() {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "5", "160", "315", "160", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -270,7 +272,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void left_slip() {
         if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "315", "160", "5", "160", "100"), new AsyncBleCallback<String, BleError>() {
+            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "315", "160", "5", "160", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -293,7 +295,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
             jsonObject.put("ex", ex);
             jsonObject.put("ey", ey);
             jsonObject.put("duration", duration);
-            jsonObject.put("interval", 100);
+            jsonObject.put("interval", 50);
 
         } catch (JSONException e) {
             e.printStackTrace();

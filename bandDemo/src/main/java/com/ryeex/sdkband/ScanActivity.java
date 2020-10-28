@@ -36,7 +36,7 @@ public class ScanActivity extends AppCompatActivity {
     @BindView(R.id.ryv_main)
     RecyclerView ryvMain;
 
-    private String from;
+//    private String from;
     private DeviceScanAdapter deviceScanAdapter;
 
 
@@ -78,9 +78,9 @@ public class ScanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scan);
         ButterKnife.bind(this);
 
-        if (getIntent().hasExtra("from")) {
-            from = getIntent().getStringExtra("from");
-        }
+//        if (getIntent().hasExtra("from")) {
+//            from = getIntent().getStringExtra("from");
+//        }
         ryvMain.setLayoutManager(new LinearLayoutManager(this));
         deviceScanAdapter = new DeviceScanAdapter(scannedShowDeviceList);
         ryvMain.setAdapter(deviceScanAdapter);
@@ -142,7 +142,7 @@ public class ScanActivity extends AppCompatActivity {
         BleScanner.getInstance().stopScan();
         Intent intent = new Intent(this, DeviceBindActivity.class);
         intent.putExtra("scannedDevice", scannedDevice);
-        intent.putExtra("from", from);
+//        intent.putExtra("from", from);
         startActivity(intent);
     }
 

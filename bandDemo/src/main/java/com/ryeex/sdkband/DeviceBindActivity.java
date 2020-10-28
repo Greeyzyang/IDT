@@ -34,8 +34,7 @@ public class DeviceBindActivity extends AppCompatActivity {
     @BindView(R.id.btn_finish)
     Button btnFinish;
 
-    private String from;
-
+//    private String from;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,10 +42,9 @@ public class DeviceBindActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_bind);
         ButterKnife.bind(this);
-        if (getIntent().hasExtra("from")) {
-            from = getIntent().getStringExtra("from");
-        }
-
+//        if (getIntent().hasExtra("from")) {
+//            from = getIntent().getStringExtra("from");
+//        }
         if (getIntent().hasExtra("scannedDevice")) {
             ScannedDevice scannedDevice = getIntent().getParcelableExtra("scannedDevice");
             if (scannedDevice == null) {
@@ -116,7 +114,7 @@ public class DeviceBindActivity extends AppCompatActivity {
 //        } else {
 //            intent = new Intent(this, JsonDeviceActivity.class);
 //        }
-        intent = new Intent(this, JsonDeviceActivity.class);
+        intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }
