@@ -53,6 +53,12 @@
         <activity
             android:name="com.ryeex.sdkband.JsonDeviceActivity"
             android:launchMode="singleTask" />
+        <activity
+            android:name="com.ryeex.sdkband.SaturnJsonDevicesActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.ryeex.sdkband.SaturnPbDevicesActivity"
+            android:launchMode="singleTask" />
 
         <service android:name="com.ryeex.sdkband.CoreService" />
 

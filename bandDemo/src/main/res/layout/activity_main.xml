@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:text="app" />
+        android:text="Brandy_APP" />
 <!--    android:text="调试PB协议" />-->
 
     <Button
@@ -20,6 +20,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:text="设备" />
+        android:text="Brandy_设备" />
 <!--        android:text="调试JSON协议" />-->
+
+    <Button
+        android:id="@+id/bnt_saturnpb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Saturn_APP" />
+
+    <Button
+        android:id="@+id/bnt_saturnjson"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Saturn_设备" />
 </LinearLayout>

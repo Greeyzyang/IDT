@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -22,13 +23,15 @@
         android:id="@+id/et_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="数据输入"
+        android:hint="@string/数据输入"
         android:textColor="@color/colorBlack"
         android:textColorHint="@color/colorNormal"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_connect_status" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_connect_status"
+        tools:ignore="TextFields"
+        android:autofillHints="" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,49 +43,49 @@
             android:id="@+id/btn_unbind"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="解绑" />
+            android:text="@string/解绑" />
 
         <Button
             android:id="@+id/btn_scan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="扫描" />
+            android:text="@string/扫描" />
 
         <Button
             android:id="@+id/btn_long_press"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="长按" />
+            android:text="@string/长按" />
 
         <Button
             android:id="@+id/btn_right_slip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="右滑" />
+            android:text="@string/右滑" />
 
         <Button
             android:id="@+id/btn_left_slip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="左滑" />
+            android:text="@string/左滑" />
 
         <Button
             android:id="@+id/btn_up_slip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="上滑" />
+            android:text="@string/上滑" />
 
         <Button
             android:id="@+id/btn_down_slip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="下滑" />
+            android:text="@string/下滑" />
 
         <Button
             android:id="@+id/btn_click"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="坐标点击" />
+            android:text="@string/坐标点击" />
 
 
     </LinearLayout>

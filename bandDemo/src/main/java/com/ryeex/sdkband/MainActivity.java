@@ -21,8 +21,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
-
-    @OnClick({R.id.bnt_pb, R.id.bnt_json,})
+    @OnClick({R.id.bnt_pb, R.id.bnt_json, R.id.bnt_saturnjson, R.id.bnt_saturnpb})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bnt_pb:
@@ -30,6 +29,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.bnt_json:
                 startActivity(new Intent(this, JsonDeviceActivity.class));
+                break;
+            case R.id.bnt_saturnpb:
+                startActivity(new Intent(this, SaturnPbDevicesActivity.class));
+                break;
+            case R.id.bnt_saturnjson:
+                startActivity(new Intent(this, SaturnJsonDevicesActivity.class));
                 break;
             default:
         }

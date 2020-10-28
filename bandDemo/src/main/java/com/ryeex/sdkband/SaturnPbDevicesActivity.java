@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -47,8 +46,6 @@ import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.FwVerUtil;
 import com.ryeex.sdkband.utils.GSON;
-import com.ryeex.sdkband.utils.NotificationConst;
-import com.ryeex.sdkband.utils.NotificationUtil;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
@@ -65,9 +62,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class PbDeviceActivity extends AppCompatActivity {
-
-    private final String TAG = "PbDeviceActivity";
+public class SaturnPbDevicesActivity extends AppCompatActivity {
+    private final String TAG = "SaturnPbDevicesActivity";
 
     @BindView(R.id.tv_connect_status)
     TextView tvConnectStatus;
@@ -199,7 +195,7 @@ public class PbDeviceActivity extends AppCompatActivity {
             R.id.tv_setUserConfig, R.id.tv_getUserConfig, R.id.tv_setSitRemindSetting, R.id.tv_getSitRemindSetting,
             R.id.tv_setGoalRemindSetting, R.id.tv_getGoalRemindSetting, R.id.tv_setTargetStep, R.id.tv_getTargetStep,
             R.id.tv_setWeatherNotifyStatus, R.id.tv_getWeatherNotifyStatus, R.id.tv_getDeviceRunState, R.id.tv_getDeviceLogFile,
-//          R.id.tv_getSurfaceList, R.id.send_json, R.id.tv_ota,
+//            R.id.tv_getSurfaceList, R.id.send_json, R.id.tv_ota,
     })
     public void onClick(View v) {
         setTextResult("");
@@ -236,9 +232,6 @@ public class PbDeviceActivity extends AppCompatActivity {
             case R.id.tv_set_app_list:
                 setDeviceAppList(v);
                 break;
-//            case R.id.tv_ota:
-//                startOta(v);
-//                break;
             case R.id.tv_getDoNotDisturb:
                 getDoNotDisturb(v);
                 break;
@@ -323,6 +316,9 @@ public class PbDeviceActivity extends AppCompatActivity {
 //            case R.id.send_json:
 //                sendJson(v);
 //                break;
+//            case R.id.tv_ota:
+//                startOta(v);
+//                break;
             default:
         }
     }
@@ -340,7 +336,7 @@ public class PbDeviceActivity extends AppCompatActivity {
                 Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
                 setDeviceConnectStatus("已解绑");
-                startActivity(new Intent(PbDeviceActivity.this, ScanActivity.class));
+                startActivity(new Intent(SaturnPbDevicesActivity.this, ScanActivity.class));
                 BleHandler.getUiHandler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -1602,51 +1598,51 @@ public class PbDeviceActivity extends AppCompatActivity {
     }
 
 
-    private void sendJson(View view) {
-        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        String json = buildJson("get_device_info", "sn");
-        Log.i(TAG, "sendJson json:" + json);
-        DeviceManager.getInstance().getDevice().sendJsonRequest(json, new AsyncBleCallback<String, BleError>() {
-            @Override
-            public void onSuccess(String result) {
-                Log.i(TAG, "sendJson onSuccess:" + result);
-                setTextResult(result);
-                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            }
+//    private void sendJson(View view) {
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        String json = buildJson("get_device_info", "sn");
+//        Log.i(TAG, "sendJson json:" + json);
+//        DeviceManager.getInstance().getDevice().sendJsonRequest(json, new AsyncBleCallback<String, BleError>() {
+//            @Override
+//            public void onSuccess(String result) {
+//                Log.i(TAG, "sendJson onSuccess:" + result);
+//                setTextResult(result);
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "sendJson onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
 
-            @Override
-            public void onFailure(BleError error) {
-                Log.e(TAG, "sendJson onFailure:" + error);
-                setTextResult(error.toString());
-                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-            }
-        });
-    }
 
 
-
-    private int getId() {
-        int id = RandomUtil.randomInt(100000);
-        if (!idList.contains(id)) {
-            idList.add(id);
-            return id;
-        } else {
-            return getId();
-        }
-    }
-
-    private String buildJson(String method, Object param) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", getId());
-            jsonObject.put("method", method);
-            jsonObject.put("para", param);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return jsonObject.toString();
-    }
+//    private int getId() {
+//        int id = RandomUtil.randomInt(100000);
+//        if (!idList.contains(id)) {
+//            idList.add(id);
+//            return id;
+//        } else {
+//            return getId();
+//        }
+//    }
+//
+//    private String buildJson(String method, Object param) {
+//        JSONObject jsonObject = new JSONObject();
+//        try {
+//            jsonObject.put("id", getId());
+//            jsonObject.put("method", method);
+//            jsonObject.put("para", param);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return jsonObject.toString();
+//    }
 
     private void setDeviceConnectStatus(String status) {
         if (isActivityAvailable()) {

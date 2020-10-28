@@ -23,7 +23,7 @@
         android:id="@+id/et_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="数据输入"
+        android:hint="@string/数据输入"
         android:textColor="@color/colorBlack"
         android:textColorHint="@color/colorNormal"
         android:textSize="15sp"
@@ -57,7 +57,7 @@
                 android:layout_height="40dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="解绑" />
+                android:text="@string/解绑" />
 
             <TextView
                 android:id="@+id/tv_device_info"
@@ -66,7 +66,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设备信息" />
+                android:text="@string/设备信息" />
 
             <TextView
                 android:id="@+id/tv_device_property"
@@ -75,7 +75,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设备电量" />
+                android:text="@string/设备电量" />
 
             <TextView
                 android:id="@+id/tv_device_activity"
@@ -84,7 +84,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="活动数据" />
+                android:text="@string/活动数据" />
 
             <TextView
                 android:id="@+id/tv_device_data"
@@ -93,7 +93,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="数据同步" />
+                android:text="@string/数据同步" />
 
             <TextView
                 android:id="@+id/tv_find_device"
@@ -102,7 +102,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="查找手环" />
+                android:text="@string/查找手环" />
 
             <TextView
                 android:id="@+id/tv_reboot_device"
@@ -111,7 +111,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="重启手环" />
+                android:text="@string/重启手环" />
 
             <TextView
                 android:id="@+id/tv_send_notification"
@@ -120,7 +120,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="发送通知" />
+                android:text="@string/发送通知" />
 
             <TextView
                 android:id="@+id/tv_set_app_list"
@@ -129,7 +129,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置应用排序" />
+                android:text="@string/设置应用排序" />
 
             <TextView
                 android:id="@+id/tv_app_list"
@@ -138,16 +138,16 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取应用排序" />
+                android:text="@string/获取应用排序" />
 
-            <TextView
-                android:id="@+id/tv_ota"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/colorNormal"
-                android:gravity="center"
-                android:text="固件升级" />
+<!--            <TextView-->
+<!--                android:id="@+id/tv_ota"-->
+<!--                android:layout_width="120dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_marginTop="10dp"-->
+<!--                android:background="@color/colorNormal"-->
+<!--                android:gravity="center"-->
+<!--                android:text="@string/固件升级" />-->
 
             <TextView
                 android:id="@+id/tv_setDoNotDisturb"
@@ -156,7 +156,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置勿扰模式" />
+                android:text="@string/设置勿扰模式" />
 
             <TextView
                 android:id="@+id/tv_getDoNotDisturb"
@@ -165,7 +165,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取勿扰模式" />
+                android:text="@string/获取勿扰模式" />
 
             <TextView
                 android:id="@+id/tv_setDeviceRaiseToWake"
@@ -174,7 +174,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置抬腕亮屏" />
+                android:text="@string/设置抬腕亮屏" />
 
             <TextView
                 android:id="@+id/tv_getDeviceRaiseToWake"
@@ -183,7 +183,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取抬腕亮屏" />
+                android:text="@string/获取抬腕亮屏" />
 
             <TextView
                 android:id="@+id/tv_setHeartRateDetect"
@@ -192,7 +192,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置心率检测" />
+                android:text="@string/设置心率检测" />
 
             <TextView
                 android:id="@+id/tv_getHeartRateDetect"
@@ -201,7 +201,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取心率检测" />
+                android:text="@string/获取心率检测" />
 
             <TextView
                 android:id="@+id/tv_setDeviceBrightness"
@@ -210,7 +210,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置屏幕亮度" />
+                android:text="@string/设置屏幕亮度" />
 
 
             <TextView
@@ -220,7 +220,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取屏幕亮度" />
+                android:text="@string/获取屏幕亮度" />
 
             <TextView
                 android:id="@+id/tv_setHomeVibrateSetting"
@@ -229,7 +229,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置震动开关" />
+                android:text="@string/设置震动开关" />
 
 
             <TextView
@@ -239,7 +239,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取震动开关" />
+                android:text="@string/获取震动开关" />
 
 
             <TextView
@@ -249,7 +249,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置解锁方式" />
+                android:text="@string/设置解锁方式" />
 
             <TextView
                 android:id="@+id/tv_getUnlock"
@@ -258,7 +258,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取解锁方式" />
+                android:text="@string/获取解锁方式" />
 
             <TextView
                 android:id="@+id/tv_saveDeviceAlarmClock"
@@ -267,7 +267,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="保存闹钟" />
+                android:text="@string/保存闹钟" />
 
             <TextView
                 android:id="@+id/tv_getDeviceAlarmClockList"
@@ -276,7 +276,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取闹钟列表" />
+                android:text="@string/获取闹钟" />
 
             <TextView
                 android:id="@+id/tv_deleteDeviceAlarmClock"
@@ -285,7 +285,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="删除闹钟" />
+                android:text="@string/删除闹钟" />
 
             <TextView
                 android:id="@+id/tv_setUserConfig"
@@ -294,7 +294,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置用户配置" />
+                android:text="@string/设置用户配置" />
 
             <TextView
                 android:id="@+id/tv_getUserConfig"
@@ -303,7 +303,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取用户配置" />
+                android:text="@string/获取用户配置" />
 
             <TextView
                 android:id="@+id/tv_setWeatherNotifyStatus"
@@ -312,7 +312,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置天气提醒" />
+                android:text="@string/设置天气提醒" />
 
             <TextView
                 android:id="@+id/tv_getWeatherNotifyStatus"
@@ -321,7 +321,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取天气提醒" />
+                android:text="@string/获取天气提醒" />
 
             <TextView
                 android:id="@+id/tv_setSitRemindSetting"
@@ -330,7 +330,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置久坐提醒" />
+                android:text="@string/设置久坐提醒" />
 
             <TextView
                 android:id="@+id/tv_getSitRemindSetting"
@@ -339,7 +339,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取久坐提醒" />
+                android:text="@string/获取久坐提醒" />
 
             <TextView
                 android:id="@+id/tv_setGoalRemindSetting"
@@ -348,7 +348,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置目标提醒" />
+                android:text="@string/设置目标提醒" />
 
             <TextView
                 android:id="@+id/tv_getGoalRemindSetting"
@@ -357,7 +357,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取目标提醒" />
+                android:text="@string/获取目标提醒" />
 
             <TextView
                 android:id="@+id/tv_setTargetStep"
@@ -366,7 +366,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="设置目标步数" />
+                android:text="@string/设置目标步数" />
 
             <TextView
                 android:id="@+id/tv_getTargetStep"
@@ -375,7 +375,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取目标步数" />
+                android:text="@string/获取目标步数" />
 
             <TextView
                 android:id="@+id/tv_getDeviceRunState"
@@ -384,7 +384,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取运行状态" />
+                android:text="@string/获取运行状态" />
 
             <TextView
                 android:id="@+id/tv_getDeviceLogFile"
@@ -393,7 +393,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="获取日志文件" />
+                android:text="@string/获取日志文件" />
 
 
         </LinearLayout>
