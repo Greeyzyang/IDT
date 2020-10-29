@@ -135,7 +135,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
                 copyAssets("726.ry");
             }
         });
-//        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
+        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener); //每次进入页面重新连接设备
 //        if (!PrefsDevice.hasDevice()) {
 //            startActivity(new Intent(this, ScanActivity.class));
 //        }   //禁止进入PB界面时自动进入扫描页面

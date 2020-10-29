@@ -40,8 +40,9 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     EditText etInput;
 
     String inPutStr;
+    private final int MSG_REBOOT = 100;
 
-    private final String TAG = "DeveloperActivity";
+    private final String TAG = "SaturnJsonDevicesActivity";
     private List<Integer> idList = new ArrayList<>();
 
 
@@ -75,7 +76,9 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
-
+//        if (!PrefsDevice.hasDevice()) {
+//            startActivity(new Intent(this, ScanActivity.class));
+//        }
     }
 
 
@@ -102,8 +105,8 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
         if (DeviceManager.getInstance().isLogin()) {
             setDeviceConnectStatus("已连接");
-        } else {
-            setDeviceConnectStatus("未连接");
+//        } else {
+//            setDeviceConnectStatus("未连接");
         }
     }
 

@@ -318,7 +318,9 @@ public class DeviceManager {
 
 
     public void bind(BandDevice device, OnBindListener onBindListener) {
-        bandDevice = device;                            //出现确认button时保持json协议连接
+        bandDevice = device;                            //设备端出现确认button时保持json协议连接
+        PrefsDevice.saveDeviceMac(device.getMac());
+        PrefsDevice.saveDeviceToken(device.getToken());
         setDeviceListener(device);
         device.bind(new OnBindListener() {
             @Override
@@ -353,10 +355,8 @@ public class DeviceManager {
             @Override
             public void onSuccess() {
 //                bandDevice = device;
-
 //                PrefsDevice.saveDeviceMac(device.getMac());
 //                PrefsDevice.saveDeviceToken(device.getToken());
-
                 if (onBindListener != null) {
                     onBindListener.onSuccess();
                 }
