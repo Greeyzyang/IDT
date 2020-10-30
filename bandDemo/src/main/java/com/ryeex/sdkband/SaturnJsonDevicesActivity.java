@@ -105,8 +105,8 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
         if (DeviceManager.getInstance().isLogin()) {
             setDeviceConnectStatus("已连接");
-//        } else {
-//            setDeviceConnectStatus("未连接");
+        } else {
+            setDeviceConnectStatus("未连接");
         }
     }
 
