@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    tools:context="com.ryeex.sdkband.MainActivity">
 
 
     <TextView
@@ -29,64 +29,112 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_connect_status"
-        tools:ignore="TextFields"
-        android:autofillHints="" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_connect_status" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/sv_main"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_input"
+        app:layout_constraintVertical_bias="1.0">
 
-        <Button
-            android:id="@+id/btn_unbind"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/解绑" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
 
-        <Button
-            android:id="@+id/btn_scan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/扫描" />
+            <Button
+                android:id="@+id/btn_unbind"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/解绑" />
 
-        <Button
-            android:id="@+id/btn_long_press"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/长按" />
+            <Button
+                android:id="@+id/btn_scan"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/扫描" />
 
-        <Button
-            android:id="@+id/btn_right_slip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/右滑" />
+            <Button
+                android:id="@+id/btn_long_press"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/长按" />
 
-        <Button
-            android:id="@+id/btn_left_slip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/左滑" />
+            <Button
+                android:id="@+id/btn_right_slip"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/右滑" />
 
-        <Button
-            android:id="@+id/btn_up_slip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/上滑" />
+            <Button
+                android:id="@+id/btn_left_slip"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/左滑" />
 
-        <Button
-            android:id="@+id/btn_down_slip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/下滑" />
+            <Button
+                android:id="@+id/btn_up_slip"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/上滑" />
 
-        <Button
-            android:id="@+id/btn_click"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="坐标点击/滑动" />
+            <Button
+                android:id="@+id/btn_down_slip"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/下滑" />
+
+            <Button
+                android:id="@+id/btn_click"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="坐标点击/滑动" />
 
 
-    </LinearLayout>
-</LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/colorBack"
+        android:padding="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/sv_main"
+        app:layout_constraintTop_toBottomOf="@+id/et_input"
+        app:layout_constraintVertical_bias="1.0" />
+</androidx.constraintlayout.widget.ConstraintLayout>

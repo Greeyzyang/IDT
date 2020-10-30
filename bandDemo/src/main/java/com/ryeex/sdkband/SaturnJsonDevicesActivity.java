@@ -36,9 +36,10 @@ import butterknife.OnClick;
 public class SaturnJsonDevicesActivity extends AppCompatActivity {
     @BindView(R.id.tv_connect_status)
     TextView tvConnectStatus;
+    @BindView(R.id.tv_result)
+    TextView tvResult;
     @BindView(R.id.et_input)
     EditText etInput;
-
     String inPutStr;
     private final int MSG_REBOOT = 100;
 
@@ -126,6 +127,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
             R.id.btn_long_press,
     })
     public void onClick(View v) {
+        setTextResult("");
         inPutStr = etInput.getText().toString();
         Log.i(TAG, "inPutStr:" + inPutStr);
         switch (v.getId()) {
@@ -157,6 +159,9 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         }
     }
 
+    private void setTextResult(String result) {
+        tvResult.setText(result);
+    }
 
     private void unbindDevice() {
         DeviceManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
@@ -197,13 +202,13 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
 
                 }
 
                 @Override
                 public void onFailure(BleError error) {
-
-
+                    setTextResult(error.toString());
                 }
             });
         }
@@ -216,10 +221,12 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
                 }
 
                 @Override
                 public void onFailure(BleError error) {
+                    setTextResult(error.toString());
                 }
             });
         }
@@ -232,10 +239,12 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
                 }
 
                 @Override
                 public void onFailure(BleError error) {
+                    setTextResult(error.toString());
                 }
             });
         }
@@ -248,10 +257,12 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
                 }
 
                 @Override
                 public void onFailure(BleError error) {
+                    setTextResult(error.toString());
                 }
             });
         }
@@ -264,10 +275,12 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
                 }
 
                 @Override
                 public void onFailure(BleError error) {
+                    setTextResult(error.toString());
                 }
             });
         }
@@ -280,10 +293,12 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
                 }
 
                 @Override
                 public void onFailure(BleError error) {
+                    setTextResult(error.toString());
                 }
             });
         }

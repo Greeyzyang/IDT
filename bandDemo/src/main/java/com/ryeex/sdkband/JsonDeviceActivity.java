@@ -38,9 +38,10 @@ public class JsonDeviceActivity extends AppCompatActivity {
 
     @BindView(R.id.tv_connect_status)
     TextView tvConnectStatus;
+    @BindView(R.id.tv_result)
+    TextView tvResult;
     @BindView(R.id.et_input)
     EditText etInput;
-
     String inPutStr;
 
     private final String TAG = "DeveloperActivity";
@@ -123,6 +124,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
 
     @OnClick({R.id.btn_unbind, R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip, R.id.btn_long_press,})
     public void onClick(View v) {
+        setTextResult("");
         inPutStr = etInput.getText().toString();
         Log.i(TAG, "inPutStr:" + inPutStr);
         switch (v.getId()) {
@@ -154,6 +156,9 @@ public class JsonDeviceActivity extends AppCompatActivity {
         }
     }
 
+    private void setTextResult(String result) {
+        tvResult.setText(result);
+    }
 
     private void unbindDevice() {
         DeviceManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
@@ -194,12 +199,13 @@ public class JsonDeviceActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
 
                 }
 
                 @Override
                 public void onFailure(BleError error) {
-
+                    setTextResult(error.toString());
 
                 }
             });
@@ -213,10 +219,12 @@ public class JsonDeviceActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
                 }
 
                 @Override
                 public void onFailure(BleError error) {
+                    setTextResult(error.toString());
                 }
             });
         }
@@ -225,13 +233,13 @@ public class JsonDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 BleLogger.i(TAG, "sendJson onSuccess " + result);
+                setTextResult(GSON.toJSONString(result));
 
             }
 
             @Override
             public void onFailure(BleError error) {
-
-
+                setTextResult(error.toString());
             }
         });
     }
@@ -242,10 +250,12 @@ public class JsonDeviceActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(GSON.toJSONString(result));
                 }
 
                 @Override
                 public void onFailure(BleError error) {
+                    setTextResult(error.toString());
                 }
             });
         }
@@ -264,13 +274,13 @@ public class JsonDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 BleLogger.i(TAG, "sendJson onSuccess " + result);
+                setTextResult(GSON.toJSONString(result));
 
             }
 
             @Override
             public void onFailure(BleError error) {
-
-
+                setTextResult(error.toString());
             }
         });
 
@@ -282,10 +292,12 @@ public class JsonDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 BleLogger.i(TAG, "sendJson onSuccess " + result);
+                setTextResult(GSON.toJSONString(result));
             }
 
             @Override
             public void onFailure(BleError error) {
+                setTextResult(error.toString());
             }
         });
         String[] tags = new String[]{"35","150","285"};
@@ -298,11 +310,13 @@ public class JsonDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 BleLogger.i(TAG, "sendJson onSuccess " + result);
+                setTextResult(GSON.toJSONString(result));
 
             }
 
             @Override
             public void onFailure(BleError error) {
+                setTextResult(error.toString());
 
 
             }
@@ -315,10 +329,12 @@ public class JsonDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 BleLogger.i(TAG, "sendJson onSuccess " + result);
+                setTextResult(GSON.toJSONString(result));
             }
 
             @Override
             public void onFailure(BleError error) {
+                setTextResult(error.toString());
             }
         });
         String[] tags = new String[]{"35","150","285"};
@@ -349,10 +365,12 @@ public class JsonDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 BleLogger.i(TAG, "sendJson onSuccess " + result);
+                setTextResult(GSON.toJSONString(result));
             }
 
             @Override
             public void onFailure(BleError error) {
+                setTextResult(error.toString());
             }
         });
         String[] tags = new String[]{"285","150","35"};
@@ -366,13 +384,13 @@ public class JsonDeviceActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 BleLogger.i(TAG, "sendJson onSuccess " + result);
+                setTextResult(GSON.toJSONString(result));
 
             }
 
             @Override
             public void onFailure(BleError error) {
-
-
+                setTextResult(error.toString());
             }
         });
     }
