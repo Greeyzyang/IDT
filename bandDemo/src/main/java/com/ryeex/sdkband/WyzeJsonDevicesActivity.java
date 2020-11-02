@@ -42,7 +42,7 @@ public class WyzeJsonDevicesActivity extends AppCompatActivity {
     String inPutStr;
     private final int MSG_REBOOT = 100;
 
-    private final String TAG = "WyzejsonDevicesActivity";
+    private final String TAG = "WyzeJsonDevicesActivity";
     private List<Integer> idList = new ArrayList<>();
 
 

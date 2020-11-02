@@ -44,7 +44,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     EditText etInput;
     String inPutStr;
 
-    private final String TAG = "DeveloperActivity";
+    private final String TAG = "BrandyJsonDeviceActivity";
     private List<Integer> idList = new ArrayList<>();
 
 

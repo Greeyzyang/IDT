@@ -61,7 +61,7 @@ import butterknife.OnClick;
 
 public class BrandyPbDeviceActivity extends AppCompatActivity {
 
-    private final String TAG = "PbDeviceActivity";
+    private final String TAG = "BrandyPbDeviceActivity";
 
     @BindView(R.id.tv_connect_status)
     TextView tvConnectStatus;
