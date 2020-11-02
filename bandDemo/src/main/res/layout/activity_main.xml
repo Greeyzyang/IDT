@@ -8,15 +8,29 @@
     tools:context="com.ryeex.sdkband.MainActivity">
 
     <Button
-        android:id="@+id/bnt_pb"
+        android:id="@+id/bnt_wyzepb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
+        android:text="Wyze_APP" />
+
+    <Button
+        android:id="@+id/bnt_wyzejson"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Wyze_设备" />
+
+    <Button
+        android:id="@+id/bnt_brandypb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:text="Brandy_APP" />
 <!--    android:text="调试PB协议" />-->
 
     <Button
-        android:id="@+id/bnt_json"
+        android:id="@+id/bnt_brandyjson"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"

@@ -39,11 +39,15 @@ import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.handler.BleHandler;
 import com.ryeex.ble.connector.utils.BleUtil;
+import com.ryeex.ble.connector.utils.RandomUtil;
 import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.GSON;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,8 +59,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class SaturnPbDevicesActivity extends AppCompatActivity {
-    private final String TAG = "SaturnPbDevicesActivity";
+public class BrandyPbDeviceActivity extends AppCompatActivity {
+
+    private final String TAG = "PbDeviceActivity";
 
     @BindView(R.id.tv_connect_status)
     TextView tvConnectStatus;
@@ -119,7 +124,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.saturnactivity_pb);
+        setContentView(R.layout.brandyactivity_pb);
         ButterKnife.bind(this);
         BleHandler.getWorkerHandler().post(new Runnable() {
             @Override
@@ -128,7 +133,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
                 copyAssets("726.ry");
             }
         });
-        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener); //每次进入页面重新连接设备
+        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener); //每次进入页面都会重新连接设备
 //        if (!PrefsDevice.hasDevice()) {
 //            startActivity(new Intent(this, ScanActivity.class));
 //        }   //禁止进入PB界面时自动进入扫描页面
@@ -188,7 +193,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             R.id.tv_setUserConfig, R.id.tv_getUserConfig, R.id.tv_setSitRemindSetting, R.id.tv_getSitRemindSetting,
             R.id.tv_setGoalRemindSetting, R.id.tv_getGoalRemindSetting, R.id.tv_setTargetStep, R.id.tv_getTargetStep,
             R.id.tv_setWeatherNotifyStatus, R.id.tv_getWeatherNotifyStatus, R.id.tv_getDeviceRunState, R.id.tv_getDeviceLogFile,
-//            R.id.tv_getSurfaceList, R.id.send_json, R.id.tv_ota,
+//          R.id.tv_getSurfaceList, R.id.send_json, R.id.tv_ota,
     })
     public void onClick(View v) {
         setTextResult("");
@@ -225,6 +230,9 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             case R.id.tv_set_app_list:
                 setDeviceAppList(v);
                 break;
+//            case R.id.tv_ota:
+//                startOta(v);
+//                break;
             case R.id.tv_getDoNotDisturb:
                 getDoNotDisturb(v);
                 break;
@@ -309,9 +317,6 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
 //            case R.id.send_json:
 //                sendJson(v);
 //                break;
-//            case R.id.tv_ota:
-//                startOta(v);
-//                break;
             default:
         }
     }
@@ -329,7 +334,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
                 Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
                 setDeviceConnectStatus("已解绑");
-                startActivity(new Intent(SaturnPbDevicesActivity.this, ScanActivity.class));
+                startActivity(new Intent(BrandyPbDeviceActivity.this, ScanActivity.class));
                 BleHandler.getUiHandler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -1591,51 +1596,51 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
     }
 
 
-//    private void sendJson(View view) {
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        String json = buildJson("get_device_info", "sn");
-//        Log.i(TAG, "sendJson json:" + json);
-//        DeviceManager.getInstance().getDevice().sendJsonRequest(json, new AsyncBleCallback<String, BleError>() {
-//            @Override
-//            public void onSuccess(String result) {
-//                Log.i(TAG, "sendJson onSuccess:" + result);
-//                setTextResult(result);
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "sendJson onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
+    private void sendJson(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        String json = buildJson("get_device_info", "sn");
+        Log.i(TAG, "sendJson json:" + json);
+        DeviceManager.getInstance().getDevice().sendJsonRequest(json, new AsyncBleCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                Log.i(TAG, "sendJson onSuccess:" + result);
+                setTextResult(result);
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "sendJson onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
 
 
 
-//    private int getId() {
-//        int id = RandomUtil.randomInt(100000);
-//        if (!idList.contains(id)) {
-//            idList.add(id);
-//            return id;
-//        } else {
-//            return getId();
-//        }
-//    }
-//
-//    private String buildJson(String method, Object param) {
-//        JSONObject jsonObject = new JSONObject();
-//        try {
-//            jsonObject.put("id", getId());
-//            jsonObject.put("method", method);
-//            jsonObject.put("para", param);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return jsonObject.toString();
-//    }
+    private int getId() {
+        int id = RandomUtil.randomInt(100000);
+        if (!idList.contains(id)) {
+            idList.add(id);
+            return id;
+        } else {
+            return getId();
+        }
+    }
+
+    private String buildJson(String method, Object param) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", getId());
+            jsonObject.put("method", method);
+            jsonObject.put("para", param);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject.toString();
+    }
 
     private void setDeviceConnectStatus(String status) {
         if (isActivityAvailable()) {

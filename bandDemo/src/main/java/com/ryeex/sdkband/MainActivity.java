@@ -21,20 +21,28 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
-    @OnClick({R.id.bnt_pb, R.id.bnt_json, R.id.bnt_saturnjson, R.id.bnt_saturnpb})
+    @OnClick({R.id.bnt_brandypb, R.id.bnt_brandyjson, R.id.bnt_saturnjson, R.id.bnt_saturnpb,
+            R.id.bnt_wyzepb, R.id.bnt_wyzejson,
+    })
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.bnt_pb:
-                startActivity(new Intent(this, PbDeviceActivity.class));
+            case R.id.bnt_brandypb:
+                startActivity(new Intent(this, BrandyPbDeviceActivity.class));
                 break;
-            case R.id.bnt_json:
-                startActivity(new Intent(this, JsonDeviceActivity.class));
+            case R.id.bnt_brandyjson:
+                startActivity(new Intent(this, BrandyJsonDeviceActivity.class));
                 break;
             case R.id.bnt_saturnpb:
                 startActivity(new Intent(this, SaturnPbDevicesActivity.class));
                 break;
             case R.id.bnt_saturnjson:
                 startActivity(new Intent(this, SaturnJsonDevicesActivity.class));
+                break;
+            case R.id.bnt_wyzepb:
+                startActivity(new Intent(this, WyzePbDevicesActivity.class));
+                break;
+            case R.id.bnt_wyzejson:
+                startActivity(new Intent(this, WyzeJsonDevicesActivity.class));
                 break;
             default:
         }

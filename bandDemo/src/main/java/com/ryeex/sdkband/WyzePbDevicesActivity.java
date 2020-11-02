@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -42,18 +41,12 @@ import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.handler.BleHandler;
 import com.ryeex.ble.connector.utils.BleUtil;
-import com.ryeex.ble.connector.utils.RandomUtil;
 import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.FwVerUtil;
 import com.ryeex.sdkband.utils.GSON;
-import com.ryeex.sdkband.utils.NotificationConst;
-import com.ryeex.sdkband.utils.NotificationUtil;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -65,9 +58,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class PbDeviceActivity extends AppCompatActivity {
-
-    private final String TAG = "PbDeviceActivity";
+public class WyzePbDevicesActivity extends AppCompatActivity {
+    private final String TAG = "WyzePbDevicesActivity";
 
     @BindView(R.id.tv_connect_status)
     TextView tvConnectStatus;
@@ -78,7 +70,7 @@ public class PbDeviceActivity extends AppCompatActivity {
     String inPutStr;
 
     private final int MSG_REBOOT = 100;
-    private List<Integer> idList = new ArrayList<>();
+
     private String fileDir = BleEngine.getAppContext().getFilesDir().getPath() + File.separator + "update";
 
 
@@ -130,7 +122,7 @@ public class PbDeviceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pb);
+        setContentView(R.layout.wyzeactivity_pb);
         ButterKnife.bind(this);
         BleHandler.getWorkerHandler().post(new Runnable() {
             @Override
@@ -139,10 +131,10 @@ public class PbDeviceActivity extends AppCompatActivity {
                 copyAssets("726.ry");
             }
         });
-        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener); //每次进入页面都会重新连接设备
+        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
 //        if (!PrefsDevice.hasDevice()) {
-//            startActivity(new Intent(this, ScanActivity.class));
-//        }   //禁止进入PB界面时自动进入扫描页面
+//            startActivity(new Intent(WyzePbDevicesActivity.this, ScanActivity.class));
+//        }
     }
 
     @Override
@@ -185,21 +177,21 @@ public class PbDeviceActivity extends AppCompatActivity {
 
         if (DeviceManager.getInstance().isLogin()) {
             setDeviceConnectStatus("已连接");
-        } else {
-            setDeviceConnectStatus("未连接");
         }
     }
 
 
     @OnClick({R.id.tv_unbind, R.id.tv_device_info, R.id.tv_device_property, R.id.tv_device_activity, R.id.tv_device_data,
             R.id.tv_find_device, R.id.tv_reboot_device, R.id.tv_send_notification, R.id.tv_app_list, R.id.tv_set_app_list,
-            R.id.tv_getDoNotDisturb, R.id.tv_setDoNotDisturb, R.id.tv_getDeviceRaiseToWake, R.id.tv_setDeviceRaiseToWake,
+            R.id.tv_ota, R.id.tv_getDoNotDisturb, R.id.tv_setDoNotDisturb, R.id.tv_getDeviceRaiseToWake, R.id.tv_setDeviceRaiseToWake,
             R.id.tv_getHeartRateDetect, R.id.tv_setHeartRateDetect, R.id.tv_getDeviceBrightness, R.id.tv_setDeviceBrightness,
             R.id.tv_getHomeVibrateSetting, R.id.tv_setHomeVibrateSetting, R.id.tv_setUnlock, R.id.tv_getUnlock,
+            R.id.tv_getDeviceAlarmClockList, R.id.tv_saveDeviceAlarmClock, R.id.tv_deleteDeviceAlarmClock,
             R.id.tv_setUserConfig, R.id.tv_getUserConfig, R.id.tv_setSitRemindSetting, R.id.tv_getSitRemindSetting,
             R.id.tv_setGoalRemindSetting, R.id.tv_getGoalRemindSetting, R.id.tv_setTargetStep, R.id.tv_getTargetStep,
             R.id.tv_setWeatherNotifyStatus, R.id.tv_getWeatherNotifyStatus, R.id.tv_getDeviceRunState, R.id.tv_getDeviceLogFile,
-//          R.id.tv_getSurfaceList, R.id.send_json, R.id.tv_ota,
+//            R.id.tv_setVibrateTime, R.id.tv_getVibrateTime, R.id.tv_setDeviceName, R.id.tv_getDeviceName, R.id.tv_deleteSurface, R.id.tv_getLinkAppsVibrateEnable, R.id.tv_setLinkAppsVibrateEnable,
+//            R.id.tv_wyzeband, R.id.tv_wyzewatch, R.id.tv_saturn, R.id.tv_setSurface, R.id.tv_getSurfaceList,
     })
     public void onClick(View v) {
         setTextResult("");
@@ -236,9 +228,9 @@ public class PbDeviceActivity extends AppCompatActivity {
             case R.id.tv_set_app_list:
                 setDeviceAppList(v);
                 break;
-//            case R.id.tv_ota:
-//                startOta(v);
-//                break;
+            case R.id.tv_ota:
+                startOta(v);
+                break;
             case R.id.tv_getDoNotDisturb:
                 getDoNotDisturb(v);
                 break;
@@ -275,6 +267,15 @@ public class PbDeviceActivity extends AppCompatActivity {
             case R.id.tv_getUnlock:
                 getUnlockType(v);
                 break;
+//            case R.id.tv_getSurfaceList:
+//                getSurfaceList(v);
+//                break;
+//            case R.id.tv_setSurface:
+//                setSurface(v);
+//                break;
+//            case R.id.tv_deleteSurface:
+//                deleteSurface(v);
+//                break;
             case R.id.tv_getDeviceAlarmClockList:
                 getDeviceAlarmClockList(v);
                 break;
@@ -317,11 +318,35 @@ public class PbDeviceActivity extends AppCompatActivity {
             case R.id.tv_getDeviceRunState:
                 getDeviceRunState(v);
                 break;
+//            case R.id.tv_setLinkAppsVibrateEnable:
+//                setLinkAppsVibrateEnable(v);
+//                break;
+//            case R.id.tv_getLinkAppsVibrateEnable:
+//                getLinkAppsVibrateEnable(v);
+//                break;
+//            case R.id.tv_setVibrateTime:
+//                setVibrateTime(v);
+//                break;
+//            case R.id.tv_getVibrateTime:
+//                getVibrateTime(v);
+//                break;
+//            case R.id.tv_setDeviceName:
+//                setDeviceName(v);
+//                break;
+//            case R.id.tv_getDeviceName:
+//                getDeviceName(v);
+//                break;
             case R.id.tv_getDeviceLogFile:
                 getDeviceLogFile(v);
                 break;
-//            case R.id.send_json:
-//                sendJson(v);
+//            case R.id.tv_wyzeband:
+//                jumppagewyzeband(v);
+//                break;
+//            case R.id.tv_wyzewatch:
+//                jumppagewyzewatch(v);
+//                break;
+//            case R.id.tv_saturn:
+//                jumppagesaturn(v);
 //                break;
             default:
         }
@@ -340,7 +365,7 @@ public class PbDeviceActivity extends AppCompatActivity {
                 Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
                 setDeviceConnectStatus("已解绑");
-                startActivity(new Intent(PbDeviceActivity.this, ScanActivity.class));
+                startActivity(new Intent(WyzePbDevicesActivity.this, ScanActivity.class));
                 BleHandler.getUiHandler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -672,79 +697,79 @@ public class PbDeviceActivity extends AppCompatActivity {
     }
 
 
-//    float finishProgress;
-//
-//    private void startOta(View view) {
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        Log.i(TAG, "updateFirmware getDevice:" + GSON.toJSONString(DeviceManager.getInstance().getDevice()));
-//
-//        //TODO demo是用assets资源，实际是要从云端下载
-//        FirmwareUpdateInfo firmwareUpdateInfo = new FirmwareUpdateInfo();
-//        //是否强制升级
-//        firmwareUpdateInfo.setForce(false);
-//        //如果是25版本，则升到34版本
-//        if (FwVerUtil.compare(DeviceManager.getInstance().getDevice().getVersion(), "1.0.7.25") == 0) {
-//            firmwareUpdateInfo.setVersion("1.0.7.34");
-//            FirmwareUpdateInfo.UpdateItem updateItem = new FirmwareUpdateInfo.UpdateItem();
-//            //0资源包 1固件包 注意有些版本是两个包有都的，demo这两个版本是没有资源包的
-//            updateItem.setId(1);
-//            updateItem.setLocalPath(fileDir + File.separator + "726.ry");
-//            updateItem.setMd5("25922c251fbf70e3f23b8f145fa31f0c");
-//            File file = new File(updateItem.getLocalPath());
-//            updateItem.setLength((int) file.length());
-//            List<FirmwareUpdateInfo.UpdateItem> items = new ArrayList<>();
-//            items.add(updateItem);
-//            firmwareUpdateInfo.setUrlList(items);
-//        }
-//        //如果是34版本，则降到25版本
-//        else if (FwVerUtil.compare(DeviceManager.getInstance().getDevice().getVersion(), "1.0.7.34") == 0) {
-//            firmwareUpdateInfo.setVersion("1.0.7.25");
-//            FirmwareUpdateInfo.UpdateItem updateItem = new FirmwareUpdateInfo.UpdateItem();
-//            //0资源包 1固件包
-//            updateItem.setId(1);
-//            updateItem.setLocalPath(fileDir + File.separator + "713.ry");
-//            updateItem.setMd5("1bf6af364de4ed7eac139a1e11c61369");
-//            File file = new File(updateItem.getLocalPath());
-//            updateItem.setLength((int) file.length());
-//            List<FirmwareUpdateInfo.UpdateItem> items = new ArrayList<>();
-//            items.add(updateItem);
-//            firmwareUpdateInfo.setUrlList(items);
-//        }
-//
-//        Log.i(TAG, "updateFirmware firmwareUpdateInfo:" + GSON.toJSONString(firmwareUpdateInfo));
-//
-//        DeviceManager.getInstance().getDevice().updateFirmware(firmwareUpdateInfo, new AsyncBleCallback<Void, BleError>() {
-//            @Override
-//            public void onUpdate(Bundle bundle) {
-//                float totalLength = bundle.getFloat(BleEngine.KEY_LENGTH);
-//                float speed = bundle.getFloat(BleEngine.KEY_SPEED);
-//                int leftSeconds = (int) ((totalLength * (1 - finishProgress / 100)) / speed);
-//
-//                Log.i(TAG, "updateFirmware onUpdate length=" + totalLength + " speed=" + speed + " time=" + leftSeconds);
-//            }
-//
-//            @Override
-//            public void onProgress(float progress) {
-//                Log.i(TAG, "updateFirmware onProgress:" + progress);
-//                finishProgress = progress;
-//            }
-//
-//            @Override
-//            public void onSuccess(Void result) {
-//                Log.i(TAG, "updateFirmware onSuccess");
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//                DeviceManager.getInstance().getDevice().disconnect(null);
-//                uiHandler.sendEmptyMessageDelayed(MSG_REBOOT, 20 * DateUtils.SECOND_IN_MILLIS);
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "updateFirmware onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
+    float finishProgress;
+
+    private void startOta(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        Log.i(TAG, "updateFirmware getDevice:" + GSON.toJSONString(DeviceManager.getInstance().getDevice()));
+
+        //TODO demo是用assets资源，实际是要从云端下载
+        FirmwareUpdateInfo firmwareUpdateInfo = new FirmwareUpdateInfo();
+        //是否强制升级
+        firmwareUpdateInfo.setForce(false);
+        //如果是25版本，则升到34版本
+        if (FwVerUtil.compare(DeviceManager.getInstance().getDevice().getVersion(), "1.0.7.25") == 0) {
+            firmwareUpdateInfo.setVersion("1.0.7.34");
+            FirmwareUpdateInfo.UpdateItem updateItem = new FirmwareUpdateInfo.UpdateItem();
+            //0资源包 1固件包 注意有些版本是两个包有都的，demo这两个版本是没有资源包的
+            updateItem.setId(1);
+            updateItem.setLocalPath(fileDir + File.separator + "726.ry");
+            updateItem.setMd5("25922c251fbf70e3f23b8f145fa31f0c");
+            File file = new File(updateItem.getLocalPath());
+            updateItem.setLength((int) file.length());
+            List<FirmwareUpdateInfo.UpdateItem> items = new ArrayList<>();
+            items.add(updateItem);
+            firmwareUpdateInfo.setUrlList(items);
+        }
+        //如果是34版本，则降到25版本
+        else if (FwVerUtil.compare(DeviceManager.getInstance().getDevice().getVersion(), "1.0.7.34") == 0) {
+            firmwareUpdateInfo.setVersion("1.0.7.25");
+            FirmwareUpdateInfo.UpdateItem updateItem = new FirmwareUpdateInfo.UpdateItem();
+            //0资源包 1固件包
+            updateItem.setId(1);
+            updateItem.setLocalPath(fileDir + File.separator + "713.ry");
+            updateItem.setMd5("1bf6af364de4ed7eac139a1e11c61369");
+            File file = new File(updateItem.getLocalPath());
+            updateItem.setLength((int) file.length());
+            List<FirmwareUpdateInfo.UpdateItem> items = new ArrayList<>();
+            items.add(updateItem);
+            firmwareUpdateInfo.setUrlList(items);
+        }
+        Log.i(TAG, "updateFirmware firmwareUpdateInfo:" + GSON.toJSONString(firmwareUpdateInfo));
+
+        DeviceManager.getInstance().getDevice().updateFirmware(firmwareUpdateInfo, new AsyncBleCallback<Void, BleError>() {
+            @Override
+            public void onUpdate(Bundle bundle) {
+                float totalLength = bundle.getFloat(BleEngine.KEY_LENGTH);
+                float speed = bundle.getFloat(BleEngine.KEY_SPEED);
+                int leftSeconds = (int) ((totalLength * (1 - finishProgress / 100)) / speed);
+
+                Log.i(TAG, "updateFirmware onUpdate length=" + totalLength + " speed=" + speed + " time=" + leftSeconds);
+            }
+
+            @Override
+            public void onProgress(float progress) {
+                Log.i(TAG, "updateFirmware onProgress:" + progress);
+                finishProgress = progress;
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "updateFirmware onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                DeviceManager.getInstance().getDevice().disconnect(null);
+                uiHandler.sendEmptyMessageDelayed(MSG_REBOOT, 20 * DateUtils.SECOND_IN_MILLIS);
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "updateFirmware onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
 
 
     private void getDoNotDisturb(View view) {
@@ -865,6 +890,7 @@ public class PbDeviceActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void getHeartRateDetect(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
@@ -1015,7 +1041,6 @@ public class PbDeviceActivity extends AppCompatActivity {
         });
     }
 
-
     private void setUnlockType(View view) {
         if (inPutStr.isEmpty()) {
             Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
@@ -1074,6 +1099,43 @@ public class PbDeviceActivity extends AppCompatActivity {
             @Override
             public void onFailure(BleError error) {
                 Log.e(TAG, "getSurfaceList onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+
+    private void setSurface(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceSurfaceInfo surfaceInfo = GSON.parseObject(inPutStr, DeviceSurfaceInfo.class);
+//        List<DeviceSurfaceInfo> infoList = new ArrayList<>();
+//        for (int i = 0; i < 3; i++) {
+//
+//            DeviceSurfaceInfo surfaceInfo = new DeviceSurfaceInfo();
+//            surfaceInfo.setId(1);
+//            surfaceInfo.setRyId(0);
+//            surfaceInfo.setSelected(false);
+//            infoList.add(surfaceInfo);
+//            surfaceInfo.setBmpId(1);
+//            surfaceInfo.setItemColor(1);
+//        }
+        DeviceManager.getInstance().getDevice().setSurface(surfaceInfo, new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setSurface onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setSurface onFailure:" + error);
                 setTextResult(error.toString());
                 view.setBackgroundColor(getResources().getColor(R.color.colorRed));
             }
@@ -1602,58 +1664,11 @@ public class PbDeviceActivity extends AppCompatActivity {
     }
 
 
-    private void sendJson(View view) {
-        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        String json = buildJson("get_device_info", "sn");
-        Log.i(TAG, "sendJson json:" + json);
-        DeviceManager.getInstance().getDevice().sendJsonRequest(json, new AsyncBleCallback<String, BleError>() {
-            @Override
-            public void onSuccess(String result) {
-                Log.i(TAG, "sendJson onSuccess:" + result);
-                setTextResult(result);
-                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            }
-
-            @Override
-            public void onFailure(BleError error) {
-                Log.e(TAG, "sendJson onFailure:" + error);
-                setTextResult(error.toString());
-                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-            }
-        });
-    }
-
-
-
-    private int getId() {
-        int id = RandomUtil.randomInt(100000);
-        if (!idList.contains(id)) {
-            idList.add(id);
-            return id;
-        } else {
-            return getId();
-        }
-    }
-
-    private String buildJson(String method, Object param) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", getId());
-            jsonObject.put("method", method);
-            jsonObject.put("para", param);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return jsonObject.toString();
-    }
-
     private void setDeviceConnectStatus(String status) {
         if (isActivityAvailable()) {
             tvConnectStatus.setText(DeviceManager.getInstance().getDevice().getMac() + "  " + status);
         }
     }
-
 
     private boolean isActivityAvailable() {
         return !isFinishing() && !isDestroyed();
@@ -1701,5 +1716,4 @@ public class PbDeviceActivity extends AppCompatActivity {
         super.onDestroy();
         DeviceManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
     }
-
 }

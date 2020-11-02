@@ -18,7 +18,6 @@ import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.log.BleLogger;
 import com.ryeex.ble.connector.utils.BleUtil;
-import com.ryeex.ble.connector.utils.RandomUtil;
 import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.GSON;
@@ -73,7 +72,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_json);
+        setContentView(R.layout.saturnactivity_json);
         ButterKnife.bind(this);
 
         DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);

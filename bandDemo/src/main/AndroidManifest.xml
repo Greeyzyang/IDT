@@ -47,17 +47,22 @@
             android:launchMode="singleTop" />
         />
         <activity
-            android:name="com.ryeex.sdkband.PbDeviceActivity"
-
+            android:name="com.ryeex.sdkband.BrandyPbDeviceActivity"
             android:launchMode="singleTask" />
         <activity
-            android:name="com.ryeex.sdkband.JsonDeviceActivity"
+            android:name="com.ryeex.sdkband.BrandyJsonDeviceActivity"
             android:launchMode="singleTask" />
         <activity
             android:name="com.ryeex.sdkband.SaturnJsonDevicesActivity"
             android:launchMode="singleTask" />
         <activity
             android:name="com.ryeex.sdkband.SaturnPbDevicesActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.ryeex.sdkband.WyzeJsonDevicesActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.ryeex.sdkband.WyzePbDevicesActivity"
             android:launchMode="singleTask" />
 
         <service android:name="com.ryeex.sdkband.CoreService" />

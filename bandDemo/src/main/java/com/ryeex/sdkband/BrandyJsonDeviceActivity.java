@@ -33,7 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class JsonDeviceActivity extends AppCompatActivity {
+public class BrandyJsonDeviceActivity extends AppCompatActivity {
 
 
     @BindView(R.id.tv_connect_status)
@@ -74,7 +74,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_json);
+        setContentView(R.layout.brandyactivity_json);
         ButterKnife.bind(this);
 
         DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
@@ -166,7 +166,7 @@ public class JsonDeviceActivity extends AppCompatActivity {
             public void onSuccess(Void result) {
                 Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
                 setDeviceConnectStatus("已解绑");
-                startActivity(new Intent(JsonDeviceActivity.this, ScanActivity.class));
+                startActivity(new Intent(BrandyJsonDeviceActivity.this, ScanActivity.class));
             }
 
             @Override
