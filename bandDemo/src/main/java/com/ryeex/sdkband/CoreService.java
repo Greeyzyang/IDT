@@ -167,10 +167,11 @@ public class CoreService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
 
         notificationBuilder
-                .setSmallIcon(R.drawable.logo_hey)
+//                .setSmallIcon(R.drawable.logo_hey)
+                .setSmallIcon(R.drawable.idt)
                 .setColor(Color.parseColor("#151515"))
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.logo_hey))
-                .setContentTitle("sdk demo")
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.idt))
+                .setContentTitle("IDT")
                 .setContentText("demo test")
 //                .setCustomContentView(remoteViews)
                 .setContentIntent(pendingIntent)

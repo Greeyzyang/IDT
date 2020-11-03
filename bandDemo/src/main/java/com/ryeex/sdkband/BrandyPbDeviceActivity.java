@@ -1577,8 +1577,12 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 //        });
 //    }
     private void getDeviceLogFile(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceLogFile(null, new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().getDeviceLogFile(inPutStr, new AsyncBleCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
                 Log.i(TAG, "getDeviceLogFile onSuccess");
