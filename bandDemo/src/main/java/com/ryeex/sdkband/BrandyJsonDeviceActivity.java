@@ -1,5 +1,6 @@
 package com.ryeex.sdkband;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,7 +44,6 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     @BindView(R.id.et_input)
     EditText etInput;
     String inPutStr;
-
     private final String TAG = "BrandyJsonDeviceActivity";
     private List<Integer> idList = new ArrayList<>();
 
@@ -77,17 +77,18 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         setContentView(R.layout.brandyactivity_json);
         ButterKnife.bind(this);
 
-        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
+        WatchManager.getInstance().addDeviceConnectListener(deviceConnectListener);
 
     }
 
 
+    @SuppressLint("LongLogTag")
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
         if (PrefsDevice.hasDevice()) {
-            Intent intent = new Intent(this, CoreService.class);
+            Intent intent = new Intent(this, WatchCoreService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intent);
             } else {
@@ -103,7 +104,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
             return;
         }
 
-        if (DeviceManager.getInstance().isLogin()) {
+        if (WatchManager.getInstance().isLogin()) {
             setDeviceConnectStatus("已连接");
         } else {
             setDeviceConnectStatus("未连接");
@@ -113,7 +114,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
 
     private void setDeviceConnectStatus(String status) {
         if (isActivityAvailable()) {
-            tvConnectStatus.setText(DeviceManager.getInstance().getDevice().getMac() + "  " + status);
+            tvConnectStatus.setText(WatchManager.getInstance().getDevice().getMac() + "  " + status);
         }
     }
 
@@ -161,12 +162,15 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     }
 
     private void unbindDevice() {
-        DeviceManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
                 setDeviceConnectStatus("已解绑");
-                startActivity(new Intent(BrandyJsonDeviceActivity.this, ScanActivity.class));
+//                startActivity(new Intent(BrandyJsonDeviceActivity.this, ScanActivity.class));
+                Intent intent = new Intent(BrandyJsonDeviceActivity.this, ScanActivity.class);
+                intent.putExtra("type", "watch");
+                startActivity(intent);
             }
 
             @Override
@@ -178,7 +182,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
 
 
     public void scan() {
-        DeviceManager.getInstance().getDevice().disconnect(null);
+        WatchManager.getInstance().getDevice().disconnect(null);
         Intent intent = new Intent(this, ScanActivity.class);
         intent.putExtra("from", "json");
         startActivity(intent);
@@ -193,8 +197,8 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(inPutStr)) {
             return;
         }
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(inPutStr, new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(inPutStr, new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -213,8 +217,8 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     }
 
     public void long_press() {
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "315"), new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "315"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -228,7 +232,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
                 }
             });
         }
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", "310"), new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", "310"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -244,8 +248,8 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         });
     }
     public void up_slip() {
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "315"), new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "315"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -261,7 +265,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         }
         String[] tags = new String[]{"285","150","35"};
         for (String s : tags) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
 //            try {
 //                Thread.sleep(50);
 //            } catch (InterruptedException e) {
@@ -269,7 +273,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
 //            }
         }
 
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "5"), new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "5"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -287,7 +291,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     }
 
     public void down_slip() {
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "5"), new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "160", "5"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -302,10 +306,10 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         });
         String[] tags = new String[]{"35","150","285"};
         for (String s : tags) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", "160", s), null);
         }
 
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "315"), new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "160", "315"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -324,7 +328,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     }
 
     public void right_slip() {
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "5", "160"), new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "5", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -340,10 +344,10 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         String[] tags = new String[]{"35","150","285"};
 //        String[] tags = new String[]{"25","45","60","75","90","105","120","135","150","165","180"};
         for (String s : tags) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", s, "160"), null);
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", s, "160"), null);
         }
 
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "315", "160"), new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "315", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -360,7 +364,7 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     }
 
     public void left_slip() {
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "315", "160"), new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "down", "315", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -376,10 +380,10 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         String[] tags = new String[]{"285","150","35"};
 //        String[] tags = new String[]{"295","285","270","260","240","225","210","195","180","165","150","135", "120", "105","90","75","60","45","25"};
         for (String s : tags) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", s, "160"), null);
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "move", s, "160"), null);
         }
 
-        DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "5", "160"), new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("touch", "up", "5", "160"), new AsyncBleCallback<String, BleError>() {
             //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
@@ -426,6 +430,6 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DeviceManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
+        WatchManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
     }
 }

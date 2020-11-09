@@ -1,5 +1,6 @@
 package com.ryeex.sdkband;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,7 +42,6 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     EditText etInput;
     String inPutStr;
     private final int MSG_REBOOT = 100;
-
     private final String TAG = "SaturnJsonDevicesActivity";
     private List<Integer> idList = new ArrayList<>();
 
@@ -75,19 +75,20 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         setContentView(R.layout.saturnactivity_json);
         ButterKnife.bind(this);
 
-        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener);
+        WatchManager.getInstance().addDeviceConnectListener(deviceConnectListener);
 //        if (!PrefsDevice.hasDevice()) {
 //            startActivity(new Intent(this, ScanActivity.class));
 //        }
     }
 
 
+    @SuppressLint("LongLogTag")
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
         if (PrefsDevice.hasDevice()) {
-            Intent intent = new Intent(this, CoreService.class);
+            Intent intent = new Intent(this, WatchCoreService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intent);
             } else {
@@ -103,7 +104,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
             return;
         }
 
-        if (DeviceManager.getInstance().isLogin()) {
+        if (WatchManager.getInstance().isLogin()) {
             setDeviceConnectStatus("已连接");
         } else {
             setDeviceConnectStatus("未连接");
@@ -113,7 +114,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     private void setDeviceConnectStatus(String status) {
         if (isActivityAvailable()) {
-            tvConnectStatus.setText(DeviceManager.getInstance().getDevice().getMac() + "  " + status);
+            tvConnectStatus.setText(WatchManager.getInstance().getDevice().getMac() + "  " + status);
         }
     }
 
@@ -122,8 +123,9 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         return !isFinishing() && !isDestroyed();
     }
 
+    @SuppressLint("LongLogTag")
     @OnClick({R.id.btn_unbind, R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,
-            R.id.btn_long_press,
+            R.id.btn_long_press, R.id.btn_getdevice, R.id.btn_home, R.id.btn_longhome,
     })
     public void onClick(View v) {
         setTextResult("");
@@ -154,6 +156,15 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
             case R.id.btn_long_press:
                 long_press();
                 break;
+            case R.id.btn_getdevice:
+                getdevicestate();
+                break;
+            case R.id.btn_home:
+                home();
+                break;
+            case R.id.btn_longhome:
+                longhome();
+                break;
             default:
         }
     }
@@ -163,14 +174,19 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     }
 
     private void unbindDevice() {
-        DeviceManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
+            @SuppressLint("LongLogTag")
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
                 setDeviceConnectStatus("已解绑");
-                startActivity(new Intent(SaturnJsonDevicesActivity.this, ScanActivity.class));
+//                startActivity(new Intent(SaturnJsonDevicesActivity.this, ScanActivity.class));
+                Intent intent = new Intent(SaturnJsonDevicesActivity.this, ScanActivity.class);
+                intent.putExtra("type", "watch");
+                startActivity(intent);
             }
 
+            @SuppressLint("LongLogTag")
             @Override
             public void onFailure(BleError error) {
                 Log.e(TAG, "unbindDevice onFailure:" + error);
@@ -180,7 +196,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
 
     public void scan() {
-        DeviceManager.getInstance().getDevice().disconnect(null);
+        WatchManager.getInstance().getDevice().disconnect(null);
         Intent intent = new Intent(this, ScanActivity.class);
 //        intent.putExtra("from", "json");
         startActivity(intent);
@@ -195,13 +211,13 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(inPutStr)) {
             return;
         }
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(inPutStr, new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(inPutStr, new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
-                    setTextResult(GSON.toJSONString(result));
+                    setTextResult(result);
 
                 }
 
@@ -214,13 +230,13 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     }
 
     public void long_press() {
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "160", "160", "160", "160", "3000"), new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "160", "160", "160", "3000"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
-                    setTextResult(GSON.toJSONString(result));
+                    setTextResult(result);
                 }
 
                 @Override
@@ -232,13 +248,13 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     }
     public void up_slip() {
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "160", "315", "160", "5", "500"), new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "315", "160", "5", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
-                    setTextResult(GSON.toJSONString(result));
+                    setTextResult(result);
                 }
 
                 @Override
@@ -250,13 +266,13 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     }
 
     public void down_slip() {
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "160", "5", "160", "315", "500"), new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "5", "160", "315", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
-                    setTextResult(GSON.toJSONString(result));
+                    setTextResult(result);
                 }
 
                 @Override
@@ -268,13 +284,13 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     }
 
     public void right_slip() {
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "5", "160", "315", "160", "500"), new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("5", "160", "315", "160", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
-                    setTextResult(GSON.toJSONString(result));
+                    setTextResult(result);
                 }
 
                 @Override
@@ -286,13 +302,13 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     }
 
     public void left_slip() {
-        if (DeviceManager.getInstance().getDevice() != null) {
-            DeviceManager.getInstance().getDevice().sendJsonRequest(buildJson("tp_move", "315", "160", "5", "160", "500"), new AsyncBleCallback<String, BleError>() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("315", "160", "5", "160", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
-                    setTextResult(GSON.toJSONString(result));
+                    setTextResult(result);
                 }
 
                 @Override
@@ -303,10 +319,64 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         }
     }
 
-    private String buildJson(String method, String sx, String sy, String ex, String ey, String duration) {
+    public void getdevicestate() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson1(), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+    }
+
+    public void home() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("btn_home"), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+    }
+
+    public void longhome() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("btn_long"), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+    }
+
+    private String buildJson(String sx, String sy, String ex, String ey, String duration) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("method", method);
+            jsonObject.put("method", "tp_move");
             jsonObject.put("sx", sx);
             jsonObject.put("sy", sy);
             jsonObject.put("ex", ex);
@@ -321,9 +391,35 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         return jsonObject.toString();
     }
 
+
+    private String buildJson1() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("method", "thread_status");
+            jsonObject.put("thread", "ui");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject.toString();
+    }
+
+    private String buildJson2(String method) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("method", method);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject.toString();
+    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DeviceManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
+        WatchManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
     }
 }

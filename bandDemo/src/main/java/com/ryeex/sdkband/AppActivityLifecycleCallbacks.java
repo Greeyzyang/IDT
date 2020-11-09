@@ -27,6 +27,7 @@ class AppActivityLifecycleCallbacks implements Application.ActivityLifecycleCall
         synchronized (LOCK) {
             if (mStartedActivityNum == 0) {
                 DeviceManager.getInstance().getDevice().setAppForeground(true, null);
+                WatchManager.getInstance().getDevice().setAppForeground(true, null); //监听watch
             }
 
             mStartedActivityNum++;
@@ -47,6 +48,7 @@ class AppActivityLifecycleCallbacks implements Application.ActivityLifecycleCall
             mStartedActivityNum--;
             if (mStartedActivityNum <= 0) {
                 DeviceManager.getInstance().getDevice().setAppForeground(false, null);
+                WatchManager.getInstance().getDevice().setAppForeground(false, null); //监听wtach
             }
         }
     }

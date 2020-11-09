@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.ryeex.ble.connector.scan.BleScanner;
 import com.ryeex.ble.connector.scan.ScannedDevice;
 import com.ryeex.sdk.R;
+import com.ryeex.sdkband.utils.GSON;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
@@ -33,6 +36,7 @@ import butterknife.ButterKnife;
 public class ScanActivity extends AppCompatActivity {
 
     private final String TAG = "ScanActivity";
+    private String value;
     @BindView(R.id.ryv_main)
     RecyclerView ryvMain;
 
@@ -77,10 +81,9 @@ public class ScanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
         ButterKnife.bind(this);
-
-//        if (getIntent().hasExtra("from")) {
-//            from = getIntent().getStringExtra("from");
-//        }
+        if (getIntent().hasExtra("type")) {
+            value = getIntent().getStringExtra("type");
+        }
         ryvMain.setLayoutManager(new LinearLayoutManager(this));
         deviceScanAdapter = new DeviceScanAdapter(scannedShowDeviceList);
         ryvMain.setAdapter(deviceScanAdapter);
@@ -140,10 +143,19 @@ public class ScanActivity extends AppCompatActivity {
 
     private void bindDevice(ScannedDevice scannedDevice) {
         BleScanner.getInstance().stopScan();
-        Intent intent = new Intent(this, DeviceBindActivity.class);
+        Intent intent;
+        if (TextUtils.equals("watch", value)) {
+            intent = new Intent(this, WatchBindActivity.class);
+            Log.i(TAG, "Go To WatchBindActivity");
+        } else {
+            intent = new Intent(this, DeviceBindActivity.class);
+            Log.i(TAG, "Go To DeviceBindActivity");
+        }
+//        Intent intent = new Intent(this, DeviceBindActivity.class);
         intent.putExtra("scannedDevice", scannedDevice);
 //        intent.putExtra("from", from);
         startActivity(intent);
+        finish();
     }
 
 

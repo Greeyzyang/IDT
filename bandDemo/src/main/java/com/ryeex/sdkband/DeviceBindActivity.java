@@ -18,6 +18,7 @@ import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.scan.ScannedDevice;
 import com.ryeex.sdk.R;
+import com.ryeex.watch.adapter.device.WatchDevice;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,7 +35,7 @@ public class DeviceBindActivity extends AppCompatActivity {
     @BindView(R.id.btn_finish)
     Button btnFinish;
 
-//    private String from;
+//    rivate String from;p
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,6 +106,50 @@ public class DeviceBindActivity extends AppCompatActivity {
             }
         });
     }
+
+//    private void startWatch(ScannedDevice scannedDevice) {
+//        WatchDevice bindingDevice = new WatchDevice();
+//        bindingDevice.setPid(scannedDevice.getRyeexProductId());
+//        bindingDevice.setMac(scannedDevice.getMac());
+//
+//        WatchManager.getInstance().bind(bindingDevice, new OnBindListener() {
+//            @Override
+//            public void onConnecting() {
+//                tvStatus.setText("正在连接");
+//
+//            }
+//
+//            @Override
+//            public void onConfirming() {
+//                tvStatus.setText("请在设备上点击确认");
+//
+//            }
+//
+//            @Override
+//            public void onBinding() {
+//                tvStatus.setText("正在绑定");
+//
+//            }
+//
+//            @Override
+//            public void onServerBind(RyeexDeviceBindInfo deviceBindInfo, AsyncBleCallback<Void, BleError> callback) {
+//                if (callback != null) {
+//                    callback.sendSuccessMessage(null);
+//                }
+//            }
+//
+//            @Override
+//            public void onSuccess() {
+//                tvStatus.setText("绑定成功");
+//                btnFinish.setEnabled(true);
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                tvStatus.setText("绑定失败");
+//            }
+//        });
+//    }
 
 
     public void finishBind(View view) {

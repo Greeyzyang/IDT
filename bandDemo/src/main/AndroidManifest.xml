@@ -41,9 +41,11 @@
         <activity
             android:name="com.ryeex.sdkband.ScanActivity"
             android:launchMode="singleTop" />
-
         <activity
             android:name="com.ryeex.sdkband.DeviceBindActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.ryeex.sdkband.WatchBindActivity"
             android:launchMode="singleTop" />
         />
         <activity
@@ -66,6 +68,8 @@
             android:launchMode="singleTask" />
 
         <service android:name="com.ryeex.sdkband.CoreService" />
+
+        <service android:name="com.ryeex.sdkband.WatchCoreService" />
 
     </application>
 

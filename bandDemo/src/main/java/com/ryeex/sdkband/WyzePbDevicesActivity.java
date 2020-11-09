@@ -45,6 +45,8 @@ import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.FwVerUtil;
 import com.ryeex.sdkband.utils.GSON;
+import com.ryeex.sdkband.utils.NotificationConst;
+import com.ryeex.sdkband.utils.NotificationUtil;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
@@ -177,6 +179,8 @@ public class WyzePbDevicesActivity extends AppCompatActivity {
 
         if (DeviceManager.getInstance().isLogin()) {
             setDeviceConnectStatus("已连接");
+        } else {
+            setDeviceConnectStatus("未连接");
         }
     }
 
@@ -1645,12 +1649,12 @@ public class WyzePbDevicesActivity extends AppCompatActivity {
 //        });
 //    }
     private void getDeviceLogFile(View view) {
-        if (inPutStr.isEmpty()) {
-            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
-            return;
-        }
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceLogFile(inPutStr, new AsyncBleCallback<String, BleError>() {
+        DeviceManager.getInstance().getDevice().getDeviceLogFile("/data/com.ryeex.sdk.demo/files/Logger", new AsyncBleCallback<String, BleError>() {
 //        DeviceManager.getInstance().getDevice().getDeviceLogFile(null, new AsyncBleCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {

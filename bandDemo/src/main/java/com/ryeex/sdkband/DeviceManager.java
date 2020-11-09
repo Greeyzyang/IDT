@@ -28,6 +28,8 @@ import com.ryeex.ble.connector.log.BleLogger;
 import com.ryeex.sdkband.listener.OnVoiceListener;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.GSON;
+import com.ryeex.watch.adapter.device.IWatchDeviceRequestListener;
+import com.ryeex.watch.adapter.device.WatchDevice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -292,7 +294,6 @@ public class DeviceManager {
     public BandDevice getDevice() {
         return bandDevice;
     }
-
 
     public void refreshDevice() {
 

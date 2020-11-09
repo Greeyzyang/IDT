@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ryeex.band.adapter.model.entity.BodyStatus;
-import com.ryeex.band.adapter.model.entity.DeviceDataSet;
 import com.ryeex.band.adapter.model.entity.DeviceSurfaceInfo;
 import com.ryeex.band.protocol.pb.entity.PBProperty;
 import com.ryeex.ble.common.device.DeviceConnectListener;
@@ -43,6 +42,7 @@ import com.ryeex.ble.connector.utils.RandomUtil;
 import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.GSON;
+import com.ryeex.watch.adapter.model.entity.DeviceDataSet;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
@@ -62,7 +62,6 @@ import butterknife.OnClick;
 public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private final String TAG = "BrandyPbDeviceActivity";
-
     @BindView(R.id.tv_connect_status)
     TextView tvConnectStatus;
     @BindView(R.id.tv_result)
@@ -104,7 +103,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case MSG_REBOOT:
-                    DeviceManager.getInstance().getDevice().login(new AsyncBleCallback<Void, BleError>() {
+                    WatchManager.getInstance().getDevice().login(new AsyncBleCallback<Void, BleError>() {
                         @Override
                         public void onSuccess(Void result) {
                             removeMessages(MSG_REBOOT);
@@ -133,7 +132,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
                 copyAssets("726.ry");
             }
         });
-        DeviceManager.getInstance().addDeviceConnectListener(deviceConnectListener); //每次进入页面都会重新连接设备
+        WatchManager.getInstance().addDeviceConnectListener(deviceConnectListener); //每次进入页面都会重新连接设备
 //        if (!PrefsDevice.hasDevice()) {
 //            startActivity(new Intent(this, ScanActivity.class));
 //        }   //禁止进入PB界面时自动进入扫描页面
@@ -151,7 +150,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
         super.onResume();
         Log.i(TAG, "onResume");
         if (PrefsDevice.hasDevice()) {
-            Intent intent = new Intent(this, CoreService.class);
+            Intent intent = new Intent(this, WatchCoreService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intent);
             } else {
@@ -177,7 +176,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
             return;
         }
 
-        if (DeviceManager.getInstance().isLogin()) {
+        if (WatchManager.getInstance().isLogin()) {
             setDeviceConnectStatus("已连接");
         } else {
             setDeviceConnectStatus("未连接");
@@ -193,6 +192,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
             R.id.tv_setUserConfig, R.id.tv_getUserConfig, R.id.tv_setSitRemindSetting, R.id.tv_getSitRemindSetting,
             R.id.tv_setGoalRemindSetting, R.id.tv_getGoalRemindSetting, R.id.tv_setTargetStep, R.id.tv_getTargetStep,
             R.id.tv_setWeatherNotifyStatus, R.id.tv_getWeatherNotifyStatus, R.id.tv_getDeviceRunState, R.id.tv_getDeviceLogFile,
+            R.id.tv_getDeviceAlarmClockList, R.id.tv_saveDeviceAlarmClock, R.id.tv_deleteDeviceAlarmClock,
 //          R.id.tv_getSurfaceList, R.id.send_json, R.id.tv_ota,
     })
     public void onClick(View v) {
@@ -328,13 +328,16 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void unbindDevice(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
                 setDeviceConnectStatus("已解绑");
-                startActivity(new Intent(BrandyPbDeviceActivity.this, ScanActivity.class));
+//                startActivity(new Intent(BrandyPbDeviceActivity.this, WatchScanActivity.class));
+                Intent intent = new Intent(BrandyPbDeviceActivity.this, ScanActivity.class);
+                intent.putExtra("type", "watch");
+                startActivity(intent);
                 BleHandler.getUiHandler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -354,7 +357,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getDeviceInfo(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceInfo(new AsyncBleCallback<DeviceInfo, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceInfo(new AsyncBleCallback<DeviceInfo, BleError>() {
             @Override
             public void onSuccess(DeviceInfo result) {
                 Log.i(TAG, "getDeviceInfo onSuccess:" + GSON.toJSONString(result));
@@ -374,7 +377,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getDeviceProperty(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceProperty(new AsyncBleCallback<DeviceProperty, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceProperty(new AsyncBleCallback<DeviceProperty, BleError>() {
             @Override
             public void onSuccess(DeviceProperty result) {
                 Log.i(TAG, "getDeviceProperty onSuccess:" + GSON.toJSONString(result));
@@ -393,7 +396,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getDeviceActivity(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceActivities(new AsyncBleCallback<DeviceActivities, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceActivities(new AsyncBleCallback<DeviceActivities, BleError>() {
             @Override
             public void onSuccess(DeviceActivities result) {
                 Log.i(TAG, "getDeviceActivity onSuccess:" + GSON.toJSONString(result));
@@ -412,7 +415,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void syncDeviceData(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().syncDeviceData(new OnDataSyncListener<List<DeviceDataSet>>() {
+        WatchManager.getInstance().getDevice().syncDeviceData(new OnDataSyncListener<List<DeviceDataSet>>() {
             @Override
             public void onStart(int total) {
                 //返回total总包数
@@ -429,47 +432,6 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
             public void onSuccess(List<DeviceDataSet> result, IResultCallback resultCallback) {
                 Log.i(TAG, "syncDeviceData onSuccess result:" + GSON.toJSONString(result));
                 setTextResult(GSON.toJSONString(result));
-                for (DeviceDataSet deviceDataSet : result) {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append("did=").append(deviceDataSet.getDid());
-                    List<DeviceDataSet.DataRecord> dataRecords = deviceDataSet.getDataRecords();
-                    for (DeviceDataSet.DataRecord dataRecord : dataRecords) {
-                        if (dataRecord.getDataType() == DeviceDataSet.DataRecord.DataType.BODY_STATUS) {
-                            BodyStatus bodyStatus = dataRecord.getBodyStatus();
-                            if (bodyStatus != null) {
-                                if (BodyStatus.Type.REST == bodyStatus.getType()) {
-                                    BodyStatus.RestStatusRecord restStatusRecord = bodyStatus.getRestStatusRecord();
-                                    Log.i(TAG, "syncDeviceData restStatusRecord:" + GSON.toJSONString(restStatusRecord));
-                                    stringBuilder.append("restStatusRecord=").append(GSON.toJSONString(restStatusRecord));
-                                } else if (BodyStatus.Type.LITE_ACTIVITY == bodyStatus.getType()) {
-                                    BodyStatus.LiteActivityStatusRecord liteActivityStatusRecord = bodyStatus.getLiteActivityStatusRecord();
-                                    Log.i(TAG, "syncDeviceData liteActivityStatusRecord:" + GSON.toJSONString(liteActivityStatusRecord));
-                                    stringBuilder.append("liteActivityStatusRecord=").append(GSON.toJSONString(liteActivityStatusRecord));
-                                } else if (BodyStatus.Type.STEP == bodyStatus.getType()) {
-                                    BodyStatus.StepStatusRecord stepStatusRecord = bodyStatus.getStepStatusRecord();
-                                    Log.i(TAG, "syncDeviceData stepStatusRecord:" + GSON.toJSONString(stepStatusRecord));
-                                    stringBuilder.append("stepStatusRecord=").append(GSON.toJSONString(stepStatusRecord));
-                                } else if (BodyStatus.Type.BRISK_WALK == bodyStatus.getType()) {
-                                    BodyStatus.BriskWalkStatusRecord briskWalkStatusRecord = bodyStatus.getBriskWalkStatusRecord();
-                                    Log.i(TAG, "syncDeviceData briskWalkStatusRecord:" + GSON.toJSONString(briskWalkStatusRecord));
-                                    stringBuilder.append("briskWalkStatusRecord=").append(GSON.toJSONString(briskWalkStatusRecord));
-                                } else if (BodyStatus.Type.SLEEP_LITE == bodyStatus.getType()) {
-                                    BodyStatus.SleepLiteStatusRecord sleepLiteStatusRecord = bodyStatus.getSleepLiteStatusRecord();
-                                    Log.i(TAG, "syncDeviceData sleepLiteStatusRecord:" + GSON.toJSONString(sleepLiteStatusRecord));
-                                    stringBuilder.append("sleepLiteStatusRecord=").append(GSON.toJSONString(sleepLiteStatusRecord));
-                                } else if (BodyStatus.Type.INDOOR_RUN == bodyStatus.getType()) {
-                                    BodyStatus.IndoorRunStatusRecord indoorRunStatusRecord = bodyStatus.getIndoorRunStatusRecord();
-                                    Log.i(TAG, "syncDeviceData indoorRunStatusRecord:" + GSON.toJSONString(indoorRunStatusRecord));
-                                    stringBuilder.append("indoorRunStatusRecord=").append(GSON.toJSONString(indoorRunStatusRecord));
-                                } else if (BodyStatus.Type.FREE == bodyStatus.getType()) {
-                                    BodyStatus.FreeTrainingStatusRecord freeTrainingStatusRecord = bodyStatus.getFreeTrainingStatusRecord();
-                                    Log.i(TAG, "syncDeviceData freeTrainingStatusRecord:" + GSON.toJSONString(freeTrainingStatusRecord));
-                                    stringBuilder.append("freeTrainingStatusRecord=").append(GSON.toJSONString(freeTrainingStatusRecord));
-                                }
-                            }
-                        }
-                    }
-                }
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
                 if (resultCallback != null) {
                     resultCallback.onResult(true);
@@ -485,10 +447,9 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
         });
     }
 
-
     private void findDevice(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().findDevice(true, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().findDevice(true, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "findDevice onSuccess");
@@ -507,7 +468,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void rebootDevice(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().rebootDevice(new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().rebootDevice(new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "rebootDevice onSuccess");
@@ -591,7 +552,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 //        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(appNotification));
 
 
-        DeviceManager.getInstance().getDevice().sendNotification(appNotification, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().sendNotification(appNotification, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "sendNotification onSuccess");
@@ -613,7 +574,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getDeviceAppList(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceAppList(new AsyncBleCallback<List<Integer>, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceAppList(new AsyncBleCallback<List<Integer>, BleError>() {
             @Override
             public void onSuccess(List<Integer> result) {
                 deviceAppList = result;
@@ -646,8 +607,8 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 //        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
         if (deviceAppList != null) {
 //        if (deviceAppList != null) {
-            DeviceManager.getInstance().getDevice().setDeviceAppList(deviceAppList, new AsyncBleCallback<Void, BleError>() {
-                //            DeviceManager.getInstance().getDevice().setDeviceAppList(deviceAppList, new AsyncBleCallback<Void, BleError>() {
+            WatchManager.getInstance().getDevice().setDeviceAppList(deviceAppList, new AsyncBleCallback<Void, BleError>() {
+                //            WatchManager.getInstance().getDevice().setDeviceAppList(deviceAppList, new AsyncBleCallback<Void, BleError>() {
                 @Override
                 public void onSuccess(Void result) {
                     Log.i(TAG, "setDeviceAppList onSuccess");
@@ -666,84 +627,9 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
     }
 
 
-//    float finishProgress;
-//
-//    private void startOta(View view) {
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        Log.i(TAG, "updateFirmware getDevice:" + GSON.toJSONString(DeviceManager.getInstance().getDevice()));
-//
-//        //TODO demo是用assets资源，实际是要从云端下载
-//        FirmwareUpdateInfo firmwareUpdateInfo = new FirmwareUpdateInfo();
-//        //是否强制升级
-//        firmwareUpdateInfo.setForce(false);
-//        //如果是25版本，则升到34版本
-//        if (FwVerUtil.compare(DeviceManager.getInstance().getDevice().getVersion(), "1.0.7.25") == 0) {
-//            firmwareUpdateInfo.setVersion("1.0.7.34");
-//            FirmwareUpdateInfo.UpdateItem updateItem = new FirmwareUpdateInfo.UpdateItem();
-//            //0资源包 1固件包 注意有些版本是两个包有都的，demo这两个版本是没有资源包的
-//            updateItem.setId(1);
-//            updateItem.setLocalPath(fileDir + File.separator + "726.ry");
-//            updateItem.setMd5("25922c251fbf70e3f23b8f145fa31f0c");
-//            File file = new File(updateItem.getLocalPath());
-//            updateItem.setLength((int) file.length());
-//            List<FirmwareUpdateInfo.UpdateItem> items = new ArrayList<>();
-//            items.add(updateItem);
-//            firmwareUpdateInfo.setUrlList(items);
-//        }
-//        //如果是34版本，则降到25版本
-//        else if (FwVerUtil.compare(DeviceManager.getInstance().getDevice().getVersion(), "1.0.7.34") == 0) {
-//            firmwareUpdateInfo.setVersion("1.0.7.25");
-//            FirmwareUpdateInfo.UpdateItem updateItem = new FirmwareUpdateInfo.UpdateItem();
-//            //0资源包 1固件包
-//            updateItem.setId(1);
-//            updateItem.setLocalPath(fileDir + File.separator + "713.ry");
-//            updateItem.setMd5("1bf6af364de4ed7eac139a1e11c61369");
-//            File file = new File(updateItem.getLocalPath());
-//            updateItem.setLength((int) file.length());
-//            List<FirmwareUpdateInfo.UpdateItem> items = new ArrayList<>();
-//            items.add(updateItem);
-//            firmwareUpdateInfo.setUrlList(items);
-//        }
-//
-//        Log.i(TAG, "updateFirmware firmwareUpdateInfo:" + GSON.toJSONString(firmwareUpdateInfo));
-//
-//        DeviceManager.getInstance().getDevice().updateFirmware(firmwareUpdateInfo, new AsyncBleCallback<Void, BleError>() {
-//            @Override
-//            public void onUpdate(Bundle bundle) {
-//                float totalLength = bundle.getFloat(BleEngine.KEY_LENGTH);
-//                float speed = bundle.getFloat(BleEngine.KEY_SPEED);
-//                int leftSeconds = (int) ((totalLength * (1 - finishProgress / 100)) / speed);
-//
-//                Log.i(TAG, "updateFirmware onUpdate length=" + totalLength + " speed=" + speed + " time=" + leftSeconds);
-//            }
-//
-//            @Override
-//            public void onProgress(float progress) {
-//                Log.i(TAG, "updateFirmware onProgress:" + progress);
-//                finishProgress = progress;
-//            }
-//
-//            @Override
-//            public void onSuccess(Void result) {
-//                Log.i(TAG, "updateFirmware onSuccess");
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//                DeviceManager.getInstance().getDevice().disconnect(null);
-//                uiHandler.sendEmptyMessageDelayed(MSG_REBOOT, 20 * DateUtils.SECOND_IN_MILLIS);
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "updateFirmware onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
-
-
     private void getDoNotDisturb(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceDoNotDisturb(new AsyncBleCallback<DoNotDisturbSetting, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceDoNotDisturb(new AsyncBleCallback<DoNotDisturbSetting, BleError>() {
             @Override
             public void onSuccess(DoNotDisturbSetting result) {
                 Log.i(TAG, "getDoNotDisturb onSuccess:" + result.toString());
@@ -789,7 +675,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
 //        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(doNotDisturbSetting));
 
-        DeviceManager.getInstance().getDevice().setDeviceDoNotDisturb(doNotDisturbSetting, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setDeviceDoNotDisturb(doNotDisturbSetting, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setDoNotDisturb onSuccess");
@@ -809,7 +695,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getDeviceRaiseToWake(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceRaiseToWake(new AsyncBleCallback<RaiseToWakeSetting, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceRaiseToWake(new AsyncBleCallback<RaiseToWakeSetting, BleError>() {
             @Override
             public void onSuccess(RaiseToWakeSetting result) {
                 Log.i(TAG, "getDeviceRaiseToWake onSuccess");
@@ -843,7 +729,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 //        raiseToWakeSetting.setEndTimeHour(12);
 //        raiseToWakeSetting.setEndTimeMinute(12);
 
-        DeviceManager.getInstance().getDevice().setDeviceRaiseToWake(raiseToWakeSetting, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setDeviceRaiseToWake(raiseToWakeSetting, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setDeviceRaiseToWake onSuccess");
@@ -862,7 +748,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getHeartRateDetect(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getHeartRateDetect(new AsyncBleCallback<HeartRateSetting, BleError>() {
+        WatchManager.getInstance().getDevice().getHeartRateDetect(new AsyncBleCallback<HeartRateSetting, BleError>() {
             @Override
             public void onSuccess(HeartRateSetting result) {
                 Log.i(TAG, "getHeartRateDetect onSuccess");
@@ -891,7 +777,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 //        heartRateSetting.setEnable(false);
         //检测间隔  单位分钟
 //        heartRateSetting.setInterval(5);
-        DeviceManager.getInstance().getDevice().setHeartRateDetect(heartRateSetting, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setHeartRateDetect(heartRateSetting, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setHeartRateDetect onSuccess");
@@ -910,7 +796,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getDeviceBrightness(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceBrightness(new AsyncBleCallback<DeviceBrightness, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceBrightness(new AsyncBleCallback<DeviceBrightness, BleError>() {
             @Override
             public void onSuccess(DeviceBrightness result) {
                 Log.i(TAG, "getDeviceBrightness onSuccess");
@@ -947,7 +833,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 //        } else {
 //            deviceBrightness = DeviceBrightness.HIGH;
 //        }
-        DeviceManager.getInstance().getDevice().setDeviceBrightness(deviceBrightness, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setDeviceBrightness(deviceBrightness, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setDeviceBrightness onSuccess");
@@ -967,7 +853,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getHomeVibrateSetting(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getHomeVibrateSetting(new AsyncBleCallback<Boolean, BleError>() {
+        WatchManager.getInstance().getDevice().getHomeVibrateSetting(new AsyncBleCallback<Boolean, BleError>() {
             @Override
             public void onSuccess(Boolean result) {
                 Log.i(TAG, "getHomeVibrateSetting onSuccess");
@@ -990,9 +876,9 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
             return;
         }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().setHomeVibrateSetting(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setHomeVibrateSetting(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
             //        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        DeviceManager.getInstance().getDevice().setHomeVibrateSetting(true, new AsyncBleCallback<Void, BleError>() {
+//        WatchManager.getInstance().getDevice().setHomeVibrateSetting(true, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setHomeVibrateSetting onSuccess");
@@ -1016,10 +902,10 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
             return;
         }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().setUnlockType(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setUnlockType(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
             //        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
             //0:禁用解锁, 1:上滑解锁
-//        DeviceManager.getInstance().getDevice().setUnlockType(1, new AsyncBleCallback<Void, BleError>() {
+//        WatchManager.getInstance().getDevice().setUnlockType(1, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setUnlockType onSuccess");
@@ -1038,7 +924,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getUnlockType(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getUnlockType(new AsyncBleCallback<Integer, BleError>() {
+        WatchManager.getInstance().getDevice().getUnlockType(new AsyncBleCallback<Integer, BleError>() {
             @Override
             public void onSuccess(Integer result) {
                 Log.i(TAG, "getUnlockType onSuccess");
@@ -1055,28 +941,9 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
         });
     }
 
-    private void getSurfaceList(View view) {
-        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getSurfaceList(new AsyncBleCallback<List<DeviceSurfaceInfo>, BleError>() {
-            @Override
-            public void onSuccess(List<DeviceSurfaceInfo> result) {
-                Log.i(TAG, "getSurfaceList onSuccess");
-                setTextResult(GSON.toJSONString(result));
-                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            }
-
-            @Override
-            public void onFailure(BleError error) {
-                Log.e(TAG, "getSurfaceList onFailure:" + error);
-                setTextResult(error.toString());
-                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-            }
-        });
-    }
-
     private void getDeviceAlarmClockList(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceAlarmClockList(new AsyncBleCallback<List<DeviceAlarmClockInfo>, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceAlarmClockList(new AsyncBleCallback<List<DeviceAlarmClockInfo>, BleError>() {
             @Override
             public void onSuccess(List<DeviceAlarmClockInfo> result) {
                 Log.i(TAG, "getDeviceAlarmClockList onSuccess");
@@ -1112,7 +979,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 //        alarmClockInfo.add(saveDeviceAlarmClock);
 
 
-        DeviceManager.getInstance().getDevice().saveDeviceAlarmClock(alarmClockInfolist, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().saveDeviceAlarmClock(alarmClockInfolist, new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "saveDeviceAlarmClock onSuccess");
@@ -1135,7 +1002,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
             return;
         }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().deleteDeviceAlarmClock(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().deleteDeviceAlarmClock(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
 
             @Override
             public void onSuccess(Void result) {
@@ -1174,7 +1041,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
         UserConfig userConfig = GSON.parseObject(inPutStr, UserConfig.class);
 //        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(userConfig));
         assert userConfig != null;
-        DeviceManager.getInstance().getDevice().setUserConfig(userConfig, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setUserConfig(userConfig, new AsyncBleCallback<Void, BleError>() {
 
             @Override
             public void onSuccess(Void result) {
@@ -1194,7 +1061,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getUserConfig(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getUserConfig(new AsyncBleCallback<UserConfig, BleError>() {
+        WatchManager.getInstance().getDevice().getUserConfig(new AsyncBleCallback<UserConfig, BleError>() {
             @Override
             public void onSuccess(UserConfig result) {
                 Log.i(TAG, "getUserConfig onSuccess");
@@ -1211,29 +1078,6 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
         });
     }
 
-//    private void deleteSurface(View view) {
-//        if (inPutStr.isEmpty()) {
-//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        DeviceManager.getInstance().getDevice().deleteSurface(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
-//
-//            @Override
-//            public void onSuccess(Void result) {
-//                Log.i(TAG, "deleteSurface onSuccess");
-//                setTextResult("set success");
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "deleteSurface onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
 
     private void setSitRemindSetting(View view) {
         if (inPutStr.isEmpty()) {
@@ -1250,7 +1094,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 //        sitRemindSetting.isSitRemindEnable();
 
 //        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(sitRemindSetting));
-        DeviceManager.getInstance().getDevice().setSitRemindSetting(sitRemindSetting, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setSitRemindSetting(sitRemindSetting, new AsyncBleCallback<Void, BleError>() {
 
             @Override
             public void onSuccess(Void result) {
@@ -1270,7 +1114,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getSitRemindSetting(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getSitRemindSetting(new AsyncBleCallback<SitRemindSetting, BleError>() {
+        WatchManager.getInstance().getDevice().getSitRemindSetting(new AsyncBleCallback<SitRemindSetting, BleError>() {
             @Override
             public void onSuccess(SitRemindSetting result) {
                 Log.i(TAG, "getSitRemindSetting onSuccess");
@@ -1295,7 +1139,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
 
 //        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(sitRemindSetting));
-        DeviceManager.getInstance().getDevice().setGoalRemindSetting(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setGoalRemindSetting(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
 
             @Override
             public void onSuccess(Void result) {
@@ -1315,7 +1159,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getGoalRemindSetting(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getGoalRemindSetting(new AsyncBleCallback<Boolean, BleError>() {
+        WatchManager.getInstance().getDevice().getGoalRemindSetting(new AsyncBleCallback<Boolean, BleError>() {
             @Override
             public void onSuccess(Boolean result) {
                 Log.i(TAG, "getGoalRemindSetting onSuccess");
@@ -1338,7 +1182,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
             return;
         }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().setTargetStep(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setTargetStep(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setTargetStep onSuccess");
@@ -1357,7 +1201,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getTargetStep(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getTargetStep(new AsyncBleCallback<Integer, BleError>() {
+        WatchManager.getInstance().getDevice().getTargetStep(new AsyncBleCallback<Integer, BleError>() {
             @Override
             public void onSuccess(Integer result) {
                 Log.i(TAG, "getTargetStep onSuccess");
@@ -1380,7 +1224,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
             return;
         }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().setWeatherNotifyStatus(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().setWeatherNotifyStatus(Boolean.parseBoolean(inPutStr), new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "setWeatherNotifyStatus onSuccess");
@@ -1399,7 +1243,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
 
     private void getWeatherNotifyStatus(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getWeatherNotifyStatus(new AsyncBleCallback<Boolean, BleError>() {
+        WatchManager.getInstance().getDevice().getWeatherNotifyStatus(new AsyncBleCallback<Boolean, BleError>() {
             @Override
             public void onSuccess(Boolean result) {
                 Log.i(TAG, "getWeatherNotifyStatus onSuccess");
@@ -1419,7 +1263,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
     private void getDeviceRunState(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
         //当前主状态, 0:idle(空闲), 1:running(跑步中), 2:ota(固件更新中), 3:se(se操作中), 4:upload_data(同步数据中), 5:repair_res(资源修复中)
-        DeviceManager.getInstance().getDevice().getDeviceRunState(new AsyncBleCallback<DeviceRunState, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceRunState(new AsyncBleCallback<DeviceRunState, BleError>() {
             PBProperty.DeviceSettingBrightNightVal R1000O00000o = new PBProperty.DeviceSettingBrightNightVal();
 
             @Override
@@ -1438,151 +1282,13 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
         });
     }
 
-//    private void setVibrateTime(View view) {
-//        if (inPutStr.isEmpty()) {
-//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        VibrateTime vibrateTime = GSON.parseObject(inPutStr, VibrateTime.class);
-////        VibrateTime vibrateTime = new VibrateTime();
-////        vibrateTime.setLinkVibrateTime(5);
-////        vibrateTime.setOtherVibrateTime(10);
-//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(vibrateTime));
-//        DeviceManager.getInstance().getDevice().setVibrateTime(vibrateTime, new AsyncBleCallback<Void, BleError>() {
-//
-//            @Override
-//            public void onSuccess(Void result) {
-//                Log.i(TAG, "setVibrateTime onSuccess");
-//                setTextResult("set success");
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "setVibrateTime onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
-//
-//    private void getVibrateTime(View view) {
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        DeviceManager.getInstance().getDevice().getVibrateTime(new AsyncBleCallback<VibrateTime, BleError>() {
-//            @Override
-//            public void onSuccess(VibrateTime result) {
-//                Log.i(TAG, "getVibrateTime onSuccess");
-//                setTextResult(GSON.toJSONString(result));
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "getVibrateTime onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
-
-//    private void getDeviceName(View view) {
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        DeviceManager.getInstance().getDevice().getDeviceName(new AsyncBleCallback<String, BleError>() {
-//            @Override
-//            public void onSuccess(String result) {
-//                Log.i(TAG, "getDeviceName onSuccess");
-//                setTextResult(GSON.toJSONString(result));
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "getDeviceName onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
-
-//    private void setDeviceName(View view) {
-//        if (inPutStr.isEmpty()) {
-//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        DeviceManager.getInstance().getDevice().setDeviceName(inPutStr, new AsyncBleCallback<Void, BleError>() {
-//            @Override
-//            public void onSuccess(Void result) {
-//                Log.i(TAG, "setDeviceName onSuccess");
-//                setTextResult("set success");
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "setDeviceName onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
-
-    //    private void setLinkAppsVibrateEnable(View view) {
-////        if (inPutStr.isEmpty()) {
-////            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
-////            return;
-////        }
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        LinkAppsVibrateSetting linkAppsVibrateSetting = new LinkAppsVibrateSetting();
-//        linkAppsVibrateSetting.setAllVibrateEnable(true);
-//        linkAppsVibrateSetting.setLinkVibrateEnable(true);
-//        linkAppsVibrateSetting.setOtherVibrateEnable(true);
-////            LinkAppsVibrateSetting linkAppsVibrateSetting = GSON.parseObject(inPutStr, LinkAppsVibrateSetting.class);
-//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(linkAppsVibrateSetting));
-//        DeviceManager.getInstance().getDevice().setLinkAppsVibrateEnable(linkAppsVibrateSetting, new AsyncBleCallback<Void, BleError>() {
-//
-//            @Override
-//            public void onSuccess(Void result) {
-//                Log.i(TAG, "setLinkAppsVibrateEnable onSuccess");
-//                setTextResult("set success");
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "setLinkAppsVibrateEnable onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
-//
-//    private void getLinkAppsVibrateEnable(View view) {
-//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-//        DeviceManager.getInstance().getDevice().getLinkAppsVibrateEnable(new AsyncBleCallback<LinkAppsVibrateSetting, BleError>() {
-//            @Override
-//            public void onSuccess(LinkAppsVibrateSetting result) {
-//                Log.i(TAG, "getLinkAppsVibrateEnable onSuccess");
-//                setTextResult(GSON.toJSONString(result));
-//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-//            }
-//
-//            @Override
-//            public void onFailure(BleError error) {
-//                Log.e(TAG, "getLinkAppsVibrateEnable onFailure:" + error);
-//                setTextResult(error.toString());
-//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-//            }
-//        });
-//    }
     private void getDeviceLogFile(View view) {
-        if (inPutStr.isEmpty()) {
-            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
-            return;
-        }
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceManager.getInstance().getDevice().getDeviceLogFile(inPutStr, new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceLogFile("/data/com.ryeex.sdk.demo/files/Logger", new AsyncBleCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
                 Log.i(TAG, "getDeviceLogFile onSuccess");
@@ -1600,55 +1306,55 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
     }
 
 
-    private void sendJson(View view) {
-        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        String json = buildJson("get_device_info", "sn");
-        Log.i(TAG, "sendJson json:" + json);
-        DeviceManager.getInstance().getDevice().sendJsonRequest(json, new AsyncBleCallback<String, BleError>() {
-            @Override
-            public void onSuccess(String result) {
-                Log.i(TAG, "sendJson onSuccess:" + result);
-                setTextResult(result);
-                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            }
+//    private void sendJson(View view) {
+//        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        String json = buildJson("get_device_info", "sn");
+//        Log.i(TAG, "sendJson json:" + json);
+//        WatchManager.getInstance().getDevice().sendJsonRequest(json, new AsyncBleCallback<String, BleError>() {
+//            @Override
+//            public void onSuccess(String result) {
+//                Log.i(TAG, "sendJson onSuccess:" + result);
+//                setTextResult(result);
+//                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+//            }
+//
+//            @Override
+//            public void onFailure(BleError error) {
+//                Log.e(TAG, "sendJson onFailure:" + error);
+//                setTextResult(error.toString());
+//                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+//            }
+//        });
+//    }
 
-            @Override
-            public void onFailure(BleError error) {
-                Log.e(TAG, "sendJson onFailure:" + error);
-                setTextResult(error.toString());
-                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
-            }
-        });
-    }
 
 
-
-    private int getId() {
-        int id = RandomUtil.randomInt(100000);
-        if (!idList.contains(id)) {
-            idList.add(id);
-            return id;
-        } else {
-            return getId();
-        }
-    }
-
-    private String buildJson(String method, Object param) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", getId());
-            jsonObject.put("method", method);
-            jsonObject.put("para", param);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return jsonObject.toString();
-    }
+//    private int getId() {
+//        int id = RandomUtil.randomInt(100000);
+//        if (!idList.contains(id)) {
+//            idList.add(id);
+//            return id;
+//        } else {
+//            return getId();
+//        }
+//    }
+//
+//    private String buildJson(String method, Object param) {
+//        JSONObject jsonObject = new JSONObject();
+//        try {
+//            jsonObject.put("id", getId());
+//            jsonObject.put("method", method);
+//            jsonObject.put("para", param);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return jsonObject.toString();
+//    }
 
     private void setDeviceConnectStatus(String status) {
         if (isActivityAvailable()) {
-            tvConnectStatus.setText(DeviceManager.getInstance().getDevice().getMac() + "  " + status);
+            tvConnectStatus.setText(WatchManager.getInstance().getDevice().getMac() + "  " + status);
         }
     }
 
@@ -1697,7 +1403,7 @@ public class BrandyPbDeviceActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DeviceManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
+        WatchManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
     }
 
 }
