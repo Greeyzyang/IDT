@@ -419,7 +419,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+            super.onDestroy();
         WatchManager.getInstance().removeDeviceConnectListener(deviceConnectListener);
     }
 }

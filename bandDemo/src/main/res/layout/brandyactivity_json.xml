@@ -107,6 +107,30 @@
                 android:text="@string/下滑" />
 
             <Button
+                android:id="@+id/btn_home"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="Home" />
+
+            <Button
+                android:id="@+id/btn_longhome"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="Long Home" />
+
+            <Button
+                android:id="@+id/btn_getdevice"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="获取设备标识" />
+
+            <Button
                 android:id="@+id/btn_click"
                 android:layout_width="120dp"
                 android:layout_height="40dp"
