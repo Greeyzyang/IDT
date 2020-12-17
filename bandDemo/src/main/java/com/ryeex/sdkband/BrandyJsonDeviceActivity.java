@@ -124,8 +124,9 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     }
 
     @SuppressLint("LongLogTag")
-    @OnClick({R.id.btn_unbind, R.id.btn_scan, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,
-            R.id.btn_long_press, R.id.btn_getdevice, R.id.btn_home, R.id.btn_longhome,
+    @OnClick({R.id.btn_unbind, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,
+            R.id.btn_long_press, R.id.btn_getdevice, R.id.btn_home, R.id.btn_longhome, R.id.btn_reboot
+//            R.id.btn_scan,
     })
     public void onClick(View v) {
         setTextResult("");
@@ -135,9 +136,12 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
             case R.id.btn_unbind:
                 unbindDevice();
                 break;
-            case R.id.btn_scan:
-                scan();
+            case R.id.btn_reboot:
+                reboot();
                 break;
+//            case R.id.btn_scan:
+//                scan();
+//                break;
             case R.id.btn_click:
                 coordinate_clickslip();
                 break;
@@ -193,13 +197,29 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     }
 
 
-    public void scan() {
-        WatchManager.getInstance().getDevice().disconnect(null);
-        Intent intent = new Intent(this, ScanActivity.class);
-        intent.putExtra("from", "json");
-        startActivity(intent);
-    }
+//    public void scan() {
+//        WatchManager.getInstance().getDevice().disconnect(null);
+//        Intent intent = new Intent(this, ScanActivity.class);
+//        intent.putExtra("from", "json");
+//        startActivity(intent);
+//    }
+    public void reboot(){
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson3(), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
 
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+    }
 
     public void coordinate_clickslip() {
         if (inPutStr.isEmpty()) {
@@ -408,6 +428,18 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("method", method);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject.toString();
+    }
+
+    private String buildJson3() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("method", "reset");
+            jsonObject.put("para", "test");
         } catch (JSONException e) {
             e.printStackTrace();
         }

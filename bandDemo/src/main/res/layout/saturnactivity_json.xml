@@ -58,13 +58,29 @@
                 android:gravity="center"
                 android:text="@string/解绑" />
 
+<!--            <Button-->
+<!--                android:id="@+id/btn_scan"-->
+<!--                android:layout_width="120dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_marginTop="10dp"-->
+<!--                android:gravity="center"-->
+<!--                android:text="@string/扫描" />-->
+
+<!--            <Button-->
+<!--                android:id="@+id/btn_reboot"-->
+<!--                android:layout_width="120dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_marginTop="10dp"-->
+<!--                android:gravity="center"-->
+<!--                android:text="重启" />-->
+
             <Button
-                android:id="@+id/btn_scan"
+                android:id="@+id/btn_reboot"
                 android:layout_width="120dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
-                android:text="@string/扫描" />
+                android:text="重启"/>
 
             <Button
                 android:id="@+id/btn_long_press"
