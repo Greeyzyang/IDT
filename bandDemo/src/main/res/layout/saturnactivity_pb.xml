@@ -69,13 +69,13 @@
                 android:text="@string/设备信息" />
 
             <TextView
-                android:id="@+id/tv_device_property"
+                android:id="@+id/tv_ota"
                 android:layout_width="120dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="10dp"
                 android:background="@color/colorNormal"
                 android:gravity="center"
-                android:text="@string/设备电量" />
+                android:text="@string/固件升级" />
 
             <TextView
                 android:id="@+id/tv_device_activity"
@@ -123,6 +123,24 @@
                 android:text="@string/发送通知" />
 
             <TextView
+                android:id="@+id/tv_installSurface"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/colorNormal"
+                android:gravity="center"
+                android:text="@string/安装表盘" />
+
+            <TextView
+                android:id="@+id/tv_deleteSurface"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/colorNormal"
+                android:gravity="center"
+                android:text="@string/删除表盘" />
+
+            <TextView
                 android:id="@+id/tv_set_app_list"
                 android:layout_width="120dp"
                 android:layout_height="40dp"
@@ -140,14 +158,14 @@
                 android:gravity="center"
                 android:text="@string/获取应用排序" />
 
-<!--            <TextView-->
-<!--                android:id="@+id/tv_ota"-->
-<!--                android:layout_width="120dp"-->
-<!--                android:layout_height="40dp"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:background="@color/colorNormal"-->
-<!--                android:gravity="center"-->
-<!--                android:text="@string/固件升级" />-->
+            <TextView
+                android:id="@+id/tv_device_property"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/colorNormal"
+                android:gravity="center"
+                android:text="@string/设备电量" />
 
             <TextView
                 android:id="@+id/tv_setDoNotDisturb"

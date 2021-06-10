@@ -174,24 +174,24 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
     }
 
     private void setTextResult(String result) {
-        tvResult.setText(result);
-    }
+                    tvResult.setText(result);
+                }
 
-    private void unbindDevice() {
-        WatchManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
-            @Override
-            public void onSuccess(Void result) {
-                Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
-                setDeviceConnectStatus("已解绑");
+                private void unbindDevice() {
+                    WatchManager.getInstance().unbind(new AsyncBleCallback<Void, BleError>() {
+                        @Override
+                        public void onSuccess(Void result) {
+//                            Log.i(TAG, "unbindDevice onSuccess:" + GSON.toJSONString(result));
+                            setDeviceConnectStatus("已解绑");
 //                startActivity(new Intent(BrandyJsonDeviceActivity.this, ScanActivity.class));
-                Intent intent = new Intent(BrandyJsonDeviceActivity.this, ScanActivity.class);
-                intent.putExtra("type", "watch");
-                startActivity(intent);
+                            Intent intent = new Intent(BrandyJsonDeviceActivity.this, ScanActivity.class);
+                            intent.putExtra("type", "watch");
+                            startActivity(intent);
             }
 
             @Override
             public void onFailure(BleError error) {
-                Log.e(TAG, "unbindDevice onFailure:" + error);
+//                Log.e(TAG, "unbindDevice onFailure:" + error);
             }
         });
     }
@@ -205,21 +205,21 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
 //    }
     public void reboot(){
         if (WatchManager.getInstance().getDevice() != null) {
-            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson3(), new AsyncBleCallback<String, BleError>() {
-                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
-                @Override
-                public void onSuccess(String result) {
-                    BleLogger.i(TAG, "sendJson onSuccess " + result);
-                    setTextResult(result);
-                }
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson3("reset", "auto_test"), new AsyncBleCallback<String, BleError>() {
+            //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+            @Override
+            public void onSuccess(String result) {
+                BleLogger.i(TAG, "sendJson onSuccess " + result);
+                setTextResult(result);
+            }
 
-                @Override
-                public void onFailure(BleError error) {
-                    setTextResult(error.toString());
-                }
-            });
-        }
+            @Override
+            public void onFailure(BleError error) {
+                setTextResult(error.toString());
+            }
+        });
     }
+}
 
     public void coordinate_clickslip() {
         if (inPutStr.isEmpty()) {
@@ -358,6 +358,21 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
 
     public void home() {
         if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("tp_touch"), new AsyncBleCallback<String, BleError>() {     //唤醒屏幕
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+        if (WatchManager.getInstance().getDevice() != null) {
             WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("btn_home"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
@@ -435,11 +450,12 @@ public class BrandyJsonDeviceActivity extends AppCompatActivity {
         return jsonObject.toString();
     }
 
-    private String buildJson3() {
+    private String buildJson3(String method, String para) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("method", "reset");
-            jsonObject.put("para", "test");
+            jsonObject.put("method", method);
+            jsonObject.put("para", para);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

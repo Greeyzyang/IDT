@@ -134,8 +134,13 @@ public class NotificationUtil {
             appId = NotificationConst.KEY_APP_TWITTER;
         } else if (packageName.equals(NotificationConst.PACKAGE_NAME_WHATSAPP)) {
             appId = NotificationConst.KEY_APP_WHATSAPP;
+        } else if (packageName.equals(NotificationConst.PACKAGE_NAME_GMAIL)) {
+            appId = NotificationConst.KEY_APP_GMAIL;
+        } else if (packageName.equals(NotificationConst.PACKAGE_NAME_YAHOO_MAIL)) {
+            appId = NotificationConst.KEY_APP_YAHOO_MAIL;
+        } else if (packageName.equals(NotificationConst.PACKAGE_NAME_GOOGLE_CALENDAR)) {
+            appId = NotificationConst.KEY_APP_GOOGLE_CALENDAR;
         }
-
         return appId;
     }
 

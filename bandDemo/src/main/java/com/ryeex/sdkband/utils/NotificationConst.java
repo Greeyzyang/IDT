@@ -34,7 +34,9 @@ public class NotificationConst {
     public static final String KEY_APP_MESSENGER = "app.messenger";
     public static final String KEY_APP_TWITTER = "app.twitter";
     public static final String KEY_APP_WHATSAPP = "app.whatsapp";
-
+    public static final String KEY_APP_GMAIL = "app.gmail";
+    public static final String KEY_APP_YAHOO_MAIL = "app.yahoo.mail";
+    public static final String KEY_APP_GOOGLE_CALENDAR = "app.google.calendar";
     public static final String KEY_APP_OTHERS = "app.others";
 
     public static final String VALUE_DISABLE = "0";
@@ -75,7 +77,9 @@ public class NotificationConst {
     public static final String PACKAGE_NAME_MESSENGER = "com.facebook.orca";
     public static final String PACKAGE_NAME_TWITTER = "com.twitter.android";
     public static final String PACKAGE_NAME_WHATSAPP = "com.whatsapp";
-
+    public static final String PACKAGE_NAME_GMAIL = "com.google.android.gm";
+    public static final String PACKAGE_NAME_YAHOO_MAIL = "com.yahoo.mobile.client.android.mail";
+    public static final String PACKAGE_NAME_GOOGLE_CALENDAR = "com.google.android.calendar";
     public static final String PACKAGE_NAME_OTHER = "ryeex.other.app";
 
 }

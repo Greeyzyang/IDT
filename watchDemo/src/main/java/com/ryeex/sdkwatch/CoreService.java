@@ -28,6 +28,7 @@ import com.ryeex.sdk.R;
 import com.ryeex.sdkwatch.listener.OnVoiceListener;
 import com.ryeex.sdkwatch.model.PrefsDevice;
 import com.ryeex.sdkwatch.utils.ContactUtil;
+import com.ryeex.watch.adapter.device.WatchDevice;
 
 public class CoreService extends Service {
 

@@ -7,7 +7,11 @@ android {
 
     defaultConfig {
         applicationId "com.ryeex.sdk.demo"
-        multiDexEnabled true
+//        multiDexEnabled true
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "5.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

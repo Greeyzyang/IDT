@@ -60,6 +60,7 @@ public class DeviceBindActivity extends AppCompatActivity {
      */
     private void startBind(ScannedDevice scannedDevice) {
         WatchDevice bindingDevice = new WatchDevice();
+//        bindingDevice.setDebug(true);
         bindingDevice.setPid(scannedDevice.getRyeexProductId());
         bindingDevice.setMac(scannedDevice.getMac());
 

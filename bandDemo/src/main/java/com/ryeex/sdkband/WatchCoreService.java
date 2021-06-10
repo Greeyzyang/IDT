@@ -21,6 +21,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.ryeex.ble.common.device.DeviceConnectListener;
 import com.ryeex.ble.common.model.entity.AppNotification;
+import com.ryeex.ble.common.model.entity.DeviceVoiceStatus;
 import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.handler.BleHandler;
@@ -65,7 +66,7 @@ public class WatchCoreService extends Service {
         public void onLoginSuccess() {
             Log.i(TAG, "onLoginSuccess");
             //0: 正常, 1:未授权, 2:网络不可用，云端和app端语音服务不可用时需要通过此接口通知设备，如果app不告诉设备状态，则语音会话开始前会通过checkVoiceReady进行查询
-            WatchManager.getInstance().getDevice().sendVoiceStatus(0, null);
+            WatchManager.getInstance().getDevice().sendVoiceStatus(DeviceVoiceStatus.READY, null);
         }
 
         @Override

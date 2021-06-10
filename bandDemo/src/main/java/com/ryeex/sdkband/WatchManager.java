@@ -18,6 +18,7 @@ import com.ryeex.ble.common.device.OnUnbindListener;
 import com.ryeex.ble.common.model.entity.DeviceHeartbeatData;
 import com.ryeex.ble.common.model.entity.FindPhoneAlert;
 import com.ryeex.ble.common.model.entity.RyeexDeviceBindInfo;
+import com.ryeex.ble.common.model.entity.SleepAssistData;
 import com.ryeex.ble.common.model.entity.UserConfig;
 import com.ryeex.ble.common.model.entity.WeatherInfo;
 import com.ryeex.ble.connector.BleEngine;
@@ -66,6 +67,7 @@ public class WatchManager {
 
     private WatchManager() {
         watchDevice = new WatchDevice();
+        watchDevice.setDebug(true);
         watchDevice.setMac(PrefsDevice.getDeviceMac());
         watchDevice.setToken(PrefsDevice.getDeviceToken());
         deviceConnectListeners = new ArrayList<>();
@@ -281,11 +283,16 @@ public class WatchManager {
 
         device.setSleepAssistDataUploadListener(new OnSleepAssistDataUploadListener() {
             @Override
-            public void onUpload(String data, AsyncBleCallback<Boolean, BleError> callback) {
+            public void onUpload(SleepAssistData sleepAssistData, AsyncBleCallback<Boolean, BleError> callback) {
                 //TODO 实现云端上传逻辑
                 if (callback != null) {
                     callback.sendSuccessMessage(true);
                 }
+            }
+
+            @Override
+            public void onWakeupChange(long l) {
+
             }
         });
     }

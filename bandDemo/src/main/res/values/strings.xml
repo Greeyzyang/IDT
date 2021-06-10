@@ -48,4 +48,6 @@
     <string name="上滑">上滑</string>
     <string name="下滑">下滑</string>
     <string name="坐标点击">坐标点击</string>
+    <string name="安装表盘">安装表盘</string>
+    <string name="删除表盘">删除表盘</string>
 </resources>

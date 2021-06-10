@@ -379,6 +379,22 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void home() {
         if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("tp_touch"), new AsyncBleCallback<String, BleError>() {     //唤醒屏幕
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+//                    setTextResult(result);
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+
+        if (WatchManager.getInstance().getDevice() != null) {
             WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("btn_home"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override

@@ -66,6 +66,7 @@ public class WatchBindActivity extends AppCompatActivity {
      */
     private void startBind(ScannedDevice scannedDevice) {
         WatchDevice bindingDevice = new WatchDevice();
+        bindingDevice.setDebug(true);
         bindingDevice.setPid(scannedDevice.getRyeexProductId());
         bindingDevice.setMac(scannedDevice.getMac());
         Log.i(TAG, "正在绑定");

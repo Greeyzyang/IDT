@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -15,8 +16,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.ryeex.band.adapter.model.entity.BodyStatus;
-import com.ryeex.band.adapter.model.entity.DeviceSurfaceInfo;
 import com.ryeex.band.protocol.pb.entity.PBProperty;
 import com.ryeex.ble.common.device.DeviceConnectListener;
 import com.ryeex.ble.common.device.IResultCallback;
@@ -29,10 +28,12 @@ import com.ryeex.ble.common.model.entity.DeviceInfo;
 import com.ryeex.ble.common.model.entity.DeviceProperty;
 import com.ryeex.ble.common.model.entity.DeviceRunState;
 import com.ryeex.ble.common.model.entity.DoNotDisturbSetting;
+import com.ryeex.ble.common.model.entity.FirmwareUpdateInfo;
 import com.ryeex.ble.common.model.entity.HeartRateSetting;
 import com.ryeex.ble.common.model.entity.RaiseToWakeSetting;
 import com.ryeex.ble.common.model.entity.SitRemindSetting;
 import com.ryeex.ble.common.model.entity.UserConfig;
+import com.ryeex.ble.common.utils.FileUtil;
 import com.ryeex.ble.connector.BleEngine;
 import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
@@ -42,12 +43,19 @@ import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.GSON;
 import com.ryeex.watch.adapter.model.entity.DeviceDataSet;
+import com.ryeex.watch.adapter.model.entity.DeviceSurfaceInfo;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +76,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
 
     private final int MSG_REBOOT = 100;
     private List<Integer> idList = new ArrayList<>();
-    private String fileDir = BleEngine.getAppContext().getFilesDir().getPath() + File.separator + "update";
+    private String fileDir = BleEngine.getAppContext().getExternalFilesDir(null).getPath() + File.separator + "update";
 
 
     private DeviceConnectListener deviceConnectListener = new DeviceConnectListener() {
@@ -124,8 +132,8 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
         BleHandler.getWorkerHandler().post(new Runnable() {
             @Override
             public void run() {
-                copyAssets("713.ry");
-                copyAssets("726.ry");
+                copyAssets("1.3.0.501");
+                copyAssets("501");
             }
         });
         WatchManager.getInstance().addDeviceConnectListener(deviceConnectListener); //每次进入页面重新连接设备
@@ -188,8 +196,9 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             R.id.tv_setUserConfig, R.id.tv_getUserConfig, R.id.tv_setSitRemindSetting, R.id.tv_getSitRemindSetting,
             R.id.tv_setGoalRemindSetting, R.id.tv_getGoalRemindSetting, R.id.tv_setTargetStep, R.id.tv_getTargetStep,
             R.id.tv_setWeatherNotifyStatus, R.id.tv_getWeatherNotifyStatus, R.id.tv_getDeviceRunState, R.id.tv_getDeviceLogFile,
-            R.id.tv_getDeviceAlarmClockList, R.id.tv_saveDeviceAlarmClock, R.id.tv_deleteDeviceAlarmClock,
-//            R.id.tv_getSurfaceList, R.id.send_json, R.id.tv_ota,
+            R.id.tv_getDeviceAlarmClockList, R.id.tv_saveDeviceAlarmClock, R.id.tv_deleteDeviceAlarmClock, R.id.tv_ota,
+            R.id.tv_installSurface, R.id.tv_deleteSurface,
+//            R.id.tv_getSurfaceList, R.id.send_json
     })
     public void onClick(View v) {
         setTextResult("");
@@ -307,9 +316,15 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             case R.id.tv_getDeviceLogFile:
                 getDeviceLogFile(v);
                 break;
-//            case R.id.tv_ota:
-//                startOta(v);
-//                break;
+            case R.id.tv_ota:
+                startOta(v);
+                break;
+            case R.id.tv_installSurface:
+                installSurface(v);
+                break;
+            case R.id.tv_deleteSurface:
+                deleteSurface(v);
+                break;
             default:
         }
     }
@@ -408,7 +423,8 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
 
     private void syncDeviceData(View view) {
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        WatchManager.getInstance().getDevice().syncDeviceData(new OnDataSyncListener<List<com.ryeex.watch.adapter.model.entity.DeviceDataSet>>() {
+        WatchManager.getInstance().getDevice().syncDeviceData(new OnDataSyncListener<List<DeviceDataSet>>() {
+//        WatchManager.getInstance().getDevice().syncDeviceData(new OnDataSyncListener<List<com.ryeex.watch.adapter.model.entity.DeviceDataSet>>() {
             @Override
             public void onStart(int total) {
                 //返回total总包数
@@ -618,6 +634,137 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    float finishProgress = 0;
+
+    private void startOta(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        Log.d(TAG, "fileDir------" + fileDir);
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        Log.i(TAG, "updateFirmware getDevice:" + GSON.toJSONString(DeviceManager.getInstance().getDevice()));
+        String [] arr = inPutStr.split("\\s+");
+        List<String> list = new ArrayList<>();
+        for (String s : arr){
+            list.add(s);
+        }
+        Log.d(TAG, "list------" + list);
+        //TODO demo是用assets资源，实际是要从云端下载
+        FirmwareUpdateInfo firmwareUpdateInfo = new FirmwareUpdateInfo();
+        List<FirmwareUpdateInfo.UpdateItem> items = new ArrayList<>();
+        //是否强制升级
+        firmwareUpdateInfo.setForce(false);
+        firmwareUpdateInfo.setVersion(list.get(0));
+
+        FirmwareUpdateInfo.UpdateItem updateItem = new FirmwareUpdateInfo.UpdateItem();
+        //0资源包 1固件包 注意有些版本是两个包有都的，demo这两个版本是没有资源包的
+        updateItem.setId(1);
+        updateItem.setLocalPath(fileDir + File.separator + list.get(0));
+        File files = new File(fileDir + File.separator + list.get(0));
+        String md5str = md5ForFile(files);
+        Log.d(TAG, "md5str------" + md5str);
+        updateItem.setMd5(md5str);
+
+        File file = new File(updateItem.getLocalPath());
+        updateItem.setLength((int) file.length());
+        items.add(updateItem);
+
+
+        FirmwareUpdateInfo.UpdateItem updateItem1 = new FirmwareUpdateInfo.UpdateItem();
+        updateItem1.setId(0);
+        updateItem1.setLocalPath(fileDir + File.separator + list.get(1));
+        File files1 = new File(fileDir + File.separator + list.get(1));
+        String md5str1 = md5ForFile(files1);
+        Log.d(TAG, "md5str1------" + md5str1);
+        updateItem1.setMd5(md5str1);
+
+        File file1 = new File(updateItem1.getLocalPath());
+        updateItem1.setLength((int) file1.length());
+        items.add(updateItem1);
+
+        firmwareUpdateInfo.setUrlList(items);
+        firmwareUpdateInfo.setResFull(true);
+        Log.i(TAG, "updateFirmware firmwareUpdateInfo:" + GSON.toJSONString(firmwareUpdateInfo));
+
+        WatchManager.getInstance().getDevice().updateFirmware(firmwareUpdateInfo, new AsyncBleCallback<Void, BleError>() {
+            @Override
+            public void onUpdate(Bundle bundle) {
+//                if (!WatchManager.getInstance().getDevice().isLogin())
+//                    WatchManager.getInstance().getDevice().login();
+                float totalLength = bundle.getFloat(BleEngine.KEY_LENGTH);
+                float speed = bundle.getFloat(BleEngine.KEY_SPEED);
+                int leftSeconds = (int) ((totalLength * (1 - finishProgress / 100)) / speed);
+
+                Log.i(TAG, "updateFirmware onUpdate length=" + totalLength + " speed=" + speed + " time=" + leftSeconds);
+            }
+
+            @Override
+            public void onProgress(float progress) {
+                Log.i(TAG, "updateFirmware onProgress:" + progress);
+                finishProgress = progress;
+                setTextResult(String.valueOf(progress));
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "updateFirmware onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                DeviceManager.getInstance().getDevice().disconnect(null);
+                uiHandler.sendEmptyMessageDelayed(MSG_REBOOT, 20 * DateUtils.SECOND_IN_MILLIS);
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "updateFirmware onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+
+    public static String md5ForFile(File file){
+        int buffersize = 1024;
+        FileInputStream fis = null;
+        DigestInputStream dis = null;
+
+        try {
+            //创建MD5转换器和文件流
+            MessageDigest messageDigest =MessageDigest.getInstance("MD5");
+            fis = new FileInputStream(file);
+            dis = new DigestInputStream(fis,messageDigest);
+
+            byte[] buffer = new byte[buffersize];
+            //DigestInputStream实际上在流处理文件时就在内部就进行了一定的处理
+            while (dis.read(buffer) > 0);
+
+            //通过DigestInputStream对象得到一个最终的MessageDigest对象。
+            messageDigest = dis.getMessageDigest();
+
+            // 通过messageDigest拿到结果，也是字节数组，包含16个元素
+            byte[] array = messageDigest.digest();
+            // 同样，把字节数组转换成字符串
+            StringBuilder hex = new StringBuilder(array.length * 2);
+            for (byte b : array) {
+                if ((b & 0xFF) < 0x10){
+                    hex.append("0");
+                }
+                hex.append(Integer.toHexString(b & 0xFF));
+            }
+            return hex.toString();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 
@@ -1087,6 +1234,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
 //        sitRemindSetting.isSitRemindEnable();
 
 //        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(sitRemindSetting));
+        assert sitRemindSetting != null;
         WatchManager.getInstance().getDevice().setSitRemindSetting(sitRemindSetting, new AsyncBleCallback<Void, BleError>() {
 
             @Override
@@ -1210,6 +1358,68 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void installSurface(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceSurfaceInfo deviceSurfaceInfo = new DeviceSurfaceInfo();
+        deviceSurfaceInfo.setId(9568);
+        deviceSurfaceInfo.setVersion(2);
+        deviceSurfaceInfo.setSelected(true);
+        DeviceSurfaceInfo.Resource resource = new DeviceSurfaceInfo.Resource();
+        resource.setName("watchface_9568");
+        resource.setType(DeviceSurfaceInfo.Resource.Type.TAR);
+        resource.setBytes(FileUtil.readFromAssets(this, "watchface_9568.tar"));
+        List<DeviceSurfaceInfo.Resource> resources = new ArrayList<>();
+        resources.add(resource);
+        deviceSurfaceInfo.setResources(resources);
+
+        //        DeviceSurfaceInfo deviceSurfaceInfo = GSON.parseObject(inPutStr, DeviceSurfaceInfo.class);
+        WatchManager.getInstance().getDevice().installSurface(deviceSurfaceInfo, new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onProgress(float progress) {
+                setTextResult((int) (progress * 100) + "%");
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "installSurface onSuccess");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "installSurface onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void deleteSurface(View view) {
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        WatchManager.getInstance().getDevice().deleteSurface(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().deleteSurface(9568, new AsyncBleCallback<Void, BleError>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "deleteSurface onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "deleteSurface onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
 
     private void setWeatherNotifyStatus(View view) {
         if (inPutStr.isEmpty()) {
@@ -1342,8 +1552,10 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             is.close();
             fos.close();
         } catch (Exception e) {
+            Log.e("yj","copy---exception---"+e.toString());
             e.printStackTrace();
         }
+
     }
 
 

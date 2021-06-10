@@ -65,6 +65,7 @@ public class DeviceManager {
 
     private DeviceManager() {
         bandDevice = new WatchDevice();
+//        bandDevice.setDebug(true);
         bandDevice.setMac(PrefsDevice.getDeviceMac());
         bandDevice.setToken(PrefsDevice.getDeviceToken());
         deviceConnectListeners = new ArrayList<>();
