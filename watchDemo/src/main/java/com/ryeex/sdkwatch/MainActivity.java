@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLoginSuccess() {
             setDeviceConnectStatus("已连接");
+            uiHandler.removeCallbacksAndMessages(null);
         }
 
         @Override
@@ -102,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(BleError error) {
-                            sendEmptyMessageDelayed(MSG_REBOOT, 5000);
                         }
                     });
+                    sendEmptyMessageDelayed(MSG_REBOOT, 20000);
                     break;
             }
         }
@@ -637,7 +638,6 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(Void result) {
                 Log.i(TAG, "updateFirmware onSuccess");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-                DeviceManager.getInstance().getDevice().disconnect(null);
                 uiHandler.sendEmptyMessageDelayed(MSG_REBOOT, 20 * DateUtils.SECOND_IN_MILLIS);
             }
 
