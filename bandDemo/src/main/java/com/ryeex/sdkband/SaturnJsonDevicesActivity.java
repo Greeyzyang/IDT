@@ -126,6 +126,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     @SuppressLint("LongLogTag")
     @OnClick({R.id.btn_unbind, R.id.btn_click, R.id.btn_down_slip, R.id.btn_up_slip, R.id.btn_left_slip, R.id.btn_right_slip,
             R.id.btn_long_press, R.id.btn_getdevice, R.id.btn_home, R.id.btn_longhome, R.id.btn_reboot,
+            R.id.btn_addsteps, R.id.btn_stopwatchstatus, R.id.btn_shakestatus, R.id.btn_quit_saving_power
 //            R.id.btn_scan, R.id.btn_test_init,
     })
     public void onClick(View v) {
@@ -168,6 +169,18 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
                 break;
             case R.id.btn_longhome:
                 longhome();
+                break;
+            case R.id.btn_addsteps:
+                addsteps();
+                break;
+            case R.id.btn_stopwatchstatus:
+                stopwatchstatus();
+                break;
+            case R.id.btn_shakestatus:
+                shakestatus();
+                break;
+            case R.id.btn_quit_saving_power:
+                quit_saving_power();
                 break;
             default:
         }
@@ -271,7 +284,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void long_press() {
         if (WatchManager.getInstance().getDevice() != null) {
-            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "160", "160", "160", "3000"), new AsyncBleCallback<String, BleError>() {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "160", "160", "160", "2000"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -289,14 +302,14 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
     }
     public void up_slip() {
         if (WatchManager.getInstance().getDevice() != null) {
-            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "315", "160", "5", "500"), new AsyncBleCallback<String, BleError>() {
+//            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "315", "160", "5", "500"), new AsyncBleCallback<String, BleError>() {
+                WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("180", "440", "180", "5", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
                     BleLogger.i(TAG, "sendJson onSuccess " + result);
                     setTextResult(result);
                 }
-
                 @Override
                 public void onFailure(BleError error) {
                     setTextResult(error.toString());
@@ -307,7 +320,8 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void down_slip() {
         if (WatchManager.getInstance().getDevice() != null) {
-            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "5", "160", "315", "500"), new AsyncBleCallback<String, BleError>() {
+//            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "5", "160", "315", "500"), new AsyncBleCallback<String, BleError>() {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("180", "5", "180", "440", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -325,7 +339,8 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void right_slip() {
         if (WatchManager.getInstance().getDevice() != null) {
-            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("5", "160", "315", "160", "500"), new AsyncBleCallback<String, BleError>() {
+//            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("5", "160", "315", "160", "500"), new AsyncBleCallback<String, BleError>() {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("5", "180", "360", "180", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -343,7 +358,8 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void left_slip() {
         if (WatchManager.getInstance().getDevice() != null) {
-            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("315", "160", "5", "160", "500"), new AsyncBleCallback<String, BleError>() {
+//            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("315", "160", "5", "160", "500"), new AsyncBleCallback<String, BleError>() {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("360", "180", "5", "180", "500"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {
@@ -429,6 +445,84 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         }
     }
 
+    public void addsteps() {
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//
+//        if (TextUtils.isEmpty(inPutStr)) {
+//            return;
+//        }
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson4("add_steps", inPutStr), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
+
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+    }
+
+    public void stopwatchstatus() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("get_stopwatch_status"), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+
+    }
+
+    public void shakestatus() {
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("get_motor_model"), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+    }
+
+    public void quit_saving_power(){
+        if (WatchManager.getInstance().getDevice() != null) {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson2("quit_saving_power"), new AsyncBleCallback<String, BleError>() {
+                //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
+                @Override
+                public void onSuccess(String result) {
+                    BleLogger.i(TAG, "sendJson onSuccess " + result);
+                    setTextResult(result);
+                }
+                @Override
+                public void onFailure(BleError error) {
+                    setTextResult(error.toString());
+                }
+            });
+        }
+    }
+
     private String buildJson(String sx, String sy, String ex, String ey, String duration) {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -477,6 +571,20 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
         try {
             jsonObject.put("method", method);
             jsonObject.put("para", para);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject.toString();
+    }
+
+
+    private String buildJson4(String method, String step_inc) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("method", method);
+            jsonObject.put("step_inc", step_inc);
 
         } catch (JSONException e) {
             e.printStackTrace();

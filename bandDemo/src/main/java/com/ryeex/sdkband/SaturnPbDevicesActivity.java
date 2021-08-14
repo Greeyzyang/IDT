@@ -1,5 +1,6 @@
 package com.ryeex.sdkband;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Build;
@@ -33,6 +34,7 @@ import com.ryeex.ble.common.model.entity.HeartRateSetting;
 import com.ryeex.ble.common.model.entity.RaiseToWakeSetting;
 import com.ryeex.ble.common.model.entity.SitRemindSetting;
 import com.ryeex.ble.common.model.entity.UserConfig;
+import com.ryeex.ble.common.model.entity.WeatherInfo;
 import com.ryeex.ble.common.utils.FileUtil;
 import com.ryeex.ble.connector.BleEngine;
 import com.ryeex.ble.connector.callback.AsyncBleCallback;
@@ -43,7 +45,10 @@ import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.GSON;
 import com.ryeex.watch.adapter.model.entity.DeviceDataSet;
+import com.ryeex.watch.adapter.model.entity.DeviceLanguage;
 import com.ryeex.watch.adapter.model.entity.DeviceSurfaceInfo;
+import com.ryeex.watch.adapter.model.entity.DrinkWaterRemindSetting;
+import com.ryeex.watch.protocol.pb.entity.PBWeather;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
@@ -76,8 +81,8 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
 
     private final int MSG_REBOOT = 100;
     private List<Integer> idList = new ArrayList<>();
-    private String fileDir = BleEngine.getAppContext().getExternalFilesDir(null).getPath() + File.separator + "update";
-
+    private String fileDir = BleEngine.getAppContext().getExternalFilesDir(null).getPath() + File.separator + "Update_File";
+    private String logDir = BleEngine.getAppContext().getExternalFilesDir(null).getPath() + File.separator + "Device_Log";
 
     private DeviceConnectListener deviceConnectListener = new DeviceConnectListener() {
         @Override
@@ -88,6 +93,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
         @Override
         public void onLoginSuccess() {
             setDeviceConnectStatus("已连接");
+            uiHandler.removeCallbacksAndMessages(null);
         }
 
         @Override
@@ -115,9 +121,10 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(BleError error) {
-                            sendEmptyMessageDelayed(MSG_REBOOT, 5000);
+//                            sendEmptyMessageDelayed(MSG_REBOOT, 5000);
                         }
                     });
+                    sendEmptyMessageDelayed(MSG_REBOOT, 20000);
                     break;
             }
         }
@@ -129,13 +136,13 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.saturnactivity_pb);
         ButterKnife.bind(this);
-        BleHandler.getWorkerHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                copyAssets("1.3.0.501");
-                copyAssets("501");
-            }
-        });
+//        BleHandler.getWorkerHandler().post(new Runnable() {
+//            @Override
+//            public void run() {
+//                copyAssets("1.3.0.501");
+//                copyAssets("501");
+//            }
+//        });
         WatchManager.getInstance().addDeviceConnectListener(deviceConnectListener); //每次进入页面重新连接设备
 //        if (!PrefsDevice.hasDevice()) {
 //            startActivity(new Intent(this, ScanActivity.class));
@@ -197,7 +204,8 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             R.id.tv_setGoalRemindSetting, R.id.tv_getGoalRemindSetting, R.id.tv_setTargetStep, R.id.tv_getTargetStep,
             R.id.tv_setWeatherNotifyStatus, R.id.tv_getWeatherNotifyStatus, R.id.tv_getDeviceRunState, R.id.tv_getDeviceLogFile,
             R.id.tv_getDeviceAlarmClockList, R.id.tv_saveDeviceAlarmClock, R.id.tv_deleteDeviceAlarmClock, R.id.tv_ota,
-            R.id.tv_installSurface, R.id.tv_deleteSurface,
+            R.id.tv_installSurface, R.id.tv_deleteSurface, R.id.tv_bluetooth_control, R.id.tv_getDrinkWaterRemindSetting,
+            R.id.tv_setDrinkWaterRemindSetting, R.id.tv_updateWeatherInfo, R.id.tv_setDeviceLanguage
 //            R.id.tv_getSurfaceList, R.id.send_json
     })
     public void onClick(View v) {
@@ -324,6 +332,21 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
                 break;
             case R.id.tv_deleteSurface:
                 deleteSurface(v);
+                break;
+            case R.id.tv_bluetooth_control:
+                bluetooth_control(v);
+                break;
+            case R.id.tv_setDrinkWaterRemindSetting:
+                setDrinkWaterRemindSetting(v);
+                break;
+            case R.id.tv_getDrinkWaterRemindSetting:
+                getDrinkWaterRemindSetting(v);
+                break;
+            case R.id.tv_updateWeatherInfo:
+                updateWeatherInfo(v);
+                break;
+            case R.id.tv_setDeviceLanguage:
+                setDeviceLanguage(v);
                 break;
             default:
         }
@@ -639,6 +662,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
     float finishProgress = 0;
 
     private void startOta(View view) {
+        //inPutStr    固件包 资源包 升级类型（1：全资源/0：差分资源）
         if (inPutStr.isEmpty()) {
             Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
             return;
@@ -646,7 +670,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
         Log.d(TAG, "fileDir------" + fileDir);
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
         Log.i(TAG, "updateFirmware getDevice:" + GSON.toJSONString(DeviceManager.getInstance().getDevice()));
-        String [] arr = inPutStr.split("\\s+");
+        String [] arr = inPutStr.split(",");
         List<String> list = new ArrayList<>();
         for (String s : arr){
             list.add(s);
@@ -667,26 +691,30 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
         String md5str = md5ForFile(files);
         Log.d(TAG, "md5str------" + md5str);
         updateItem.setMd5(md5str);
-
         File file = new File(updateItem.getLocalPath());
         updateItem.setLength((int) file.length());
         items.add(updateItem);
 
-
-        FirmwareUpdateInfo.UpdateItem updateItem1 = new FirmwareUpdateInfo.UpdateItem();
-        updateItem1.setId(0);
-        updateItem1.setLocalPath(fileDir + File.separator + list.get(1));
-        File files1 = new File(fileDir + File.separator + list.get(1));
-        String md5str1 = md5ForFile(files1);
-        Log.d(TAG, "md5str1------" + md5str1);
-        updateItem1.setMd5(md5str1);
-
-        File file1 = new File(updateItem1.getLocalPath());
-        updateItem1.setLength((int) file1.length());
-        items.add(updateItem1);
+        if (!list.get(1).equals("0")) {
+            FirmwareUpdateInfo.UpdateItem updateItem1 = new FirmwareUpdateInfo.UpdateItem();
+            updateItem1.setId(0);
+            updateItem1.setLocalPath(fileDir + File.separator + list.get(1));
+            File files1 = new File(fileDir + File.separator + list.get(1));
+            String md5str1 = md5ForFile(files1);
+            Log.d(TAG, "md5str1------" + md5str1);
+            updateItem1.setMd5(md5str1);
+            File file1 = new File(updateItem1.getLocalPath());
+            updateItem1.setLength((int) file1.length());
+            items.add(updateItem1);
+        }
 
         firmwareUpdateInfo.setUrlList(items);
-        firmwareUpdateInfo.setResFull(true);
+        if (list.get(2).equals("1")) {
+            firmwareUpdateInfo.setResFull(true);
+        }
+        else if (list.get(2).equals("0")) {
+            firmwareUpdateInfo.setResFull(false);
+        }
         Log.i(TAG, "updateFirmware firmwareUpdateInfo:" + GSON.toJSONString(firmwareUpdateInfo));
 
         WatchManager.getInstance().getDevice().updateFirmware(firmwareUpdateInfo, new AsyncBleCallback<Void, BleError>() {
@@ -713,7 +741,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
                 Log.i(TAG, "updateFirmware onSuccess");
                 setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-                DeviceManager.getInstance().getDevice().disconnect(null);
+                WatchManager.getInstance().getDevice().disconnect(null);
                 uiHandler.sendEmptyMessageDelayed(MSG_REBOOT, 20 * DateUtils.SECOND_IN_MILLIS);
             }
 
@@ -1272,6 +1300,62 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
         });
     }
 
+    private void updateWeatherInfo(View view) {
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        WeatherInfo weatherInfo = GSON.parseObject(inPutStr, WeatherInfo.class);
+//        WeatherInfo weatherInfo = new WeatherInfo();
+//        weatherInfo.setCityName("Shenzhen");
+//        weatherInfo.setWeatherDetail();
+        String info = "{\"cityName\":\"shenzhen\",\"weatherDetail\":{\"dailyWeather\":{\"cityName\":\"shenzhen\",\"firstDateTime\":1606752000,\"items\":[{\"aqi\":0,\"date\":1606752000,\"maxTemperature\":23,\"minTemperature\":15,\"type\":0},{\"aqi\":0,\"date\":1606838400,\"maxTemperature\":24,\"minTemperature\":16,\"type\":0},{\"aqi\":0,\"date\":1606924800,\"maxTemperature\":24,\"minTemperature\":14,\"type\":0},{\"aqi\":0,\"date\":1607011200,\"maxTemperature\":22,\"minTemperature\":13,\"type\":0},{\"aqi\":0,\"date\":1607097600,\"maxTemperature\":23,\"minTemperature\":15,\"type\":0},{\"aqi\":0,\"date\":1607184000,\"maxTemperature\":25,\"minTemperature\":16,\"type\":0}]},\"sectionWeather\":{\"cityName\":\"shenzhen\",\"interval\":86400,\"items\":[{\"humidity\":55,\"sunriseTime\":0,\"sunsetTime\":0,\"temperature\":20,\"type\":0,\"uv\":1,\"windSpeed\":0}],\"startTime\":1606752000}}}";
+        WeatherInfo weatherInfo = GSON.parseObject(info, WeatherInfo.class);
+        assert weatherInfo != null;
+        WatchManager.getInstance().getDevice().updateWeatherInfo(weatherInfo, new AsyncBleCallback<Void, BleError>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "updateWeatherInfo onSuccess");
+                setTextResult("set success");
+            }
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "updateWeatherInfo onFailure:" + error);
+                setTextResult(error.toString());
+            }
+        });
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(weatherInfo));
+
+    }
+
+    private void setDeviceLanguage(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DeviceLanguage deviceLanguage = GSON.parseObject(inPutStr, DeviceLanguage.class);
+        WatchManager.getInstance().getDevice().setDeviceLanguage(deviceLanguage, new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setDeviceLanguage onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setDeviceLanguage onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+
+    }
+
+
     private void setGoalRemindSetting(View view) {
         if (inPutStr.isEmpty()) {
             Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
@@ -1420,6 +1504,16 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
         });
     }
 
+    private void bluetooth_control(View view) {
+        if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            BluetoothAdapter.getDefaultAdapter().disable();
+            setTextResult("off");
+        } else {
+            BluetoothAdapter.getDefaultAdapter().enable();
+            setTextResult("on");
+            }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+    }
 
     private void setWeatherNotifyStatus(View view) {
         if (inPutStr.isEmpty()) {
@@ -1438,6 +1532,64 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             @Override
             public void onFailure(BleError error) {
                 Log.e(TAG, "setWeatherNotifyStatus onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void setDrinkWaterRemindSetting(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        DrinkWaterRemindSetting drinkWaterRemindSetting = GSON.parseObject(inPutStr, DrinkWaterRemindSetting.class);
+
+//        DrinkWaterRemindSetting drinkWaterRemindSetting = new DrinkWaterRemindSetting();
+//        drinkWaterRemindSetting.enable = true;
+//        drinkWaterRemindSetting.endTimeHour = 23;
+//        drinkWaterRemindSetting.endTimeMinute = 0;
+//        drinkWaterRemindSetting.forbidEnable = true;
+//        drinkWaterRemindSetting.forbidEndTimeHour = 14;
+//        drinkWaterRemindSetting.forbidEndTimeMinute = 0;
+//        drinkWaterRemindSetting.forbidStartTimeHour = 12;
+//        drinkWaterRemindSetting.forbidStartTimeMinute = 0;
+//        drinkWaterRemindSetting.interval = 5;
+//        drinkWaterRemindSetting.startTimeHour = 7;
+//        drinkWaterRemindSetting.startTimeMinute = 0;
+//        Log.i(TAG, "doNotDisturbSetting:"+GSON.toJSONString(drinkWaterRemindSetting));
+        WatchManager.getInstance().getDevice().setDrinkWaterRemindSetting(drinkWaterRemindSetting, new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setDrinkWaterRemindSetting onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setDrinkWaterRemindSetting onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void getDrinkWaterRemindSetting(View view) {
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+        WatchManager.getInstance().getDevice().getDrinkWaterRemindSetting(new AsyncBleCallback<DrinkWaterRemindSetting, BleError>() {
+            @Override
+            public void onSuccess(DrinkWaterRemindSetting result) {
+                Log.i(TAG, "getDrinkWaterRemindSetting onSuccess");
+                setTextResult(GSON.toJSONString(result));
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "getDrinkWaterRemindSetting onFailure:" + error);
                 setTextResult(error.toString());
                 view.setBackgroundColor(getResources().getColor(R.color.colorRed));
             }
@@ -1491,7 +1643,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
 //            return;
 //        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        WatchManager.getInstance().getDevice().getDeviceLogFile("/data/com.ryeex.sdk.demo/files/Logger", new AsyncBleCallback<String, BleError>() {
+        WatchManager.getInstance().getDevice().getDeviceLogFile(logDir, new AsyncBleCallback<String, BleError>() {
             @Override
             public void onSuccess(String result) {
                 Log.i(TAG, "getDeviceLogFile onSuccess");
@@ -1521,42 +1673,42 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
     }
 
 
-    private void copyAssets(String fileName) {
-        try {
-            File files = new File(fileDir);
-            if (!files.exists()) {
-                files.mkdirs();
-            }
-            File file = new File(files, fileName);
-            InputStream is = null;
-            try {
-                AssetManager manager = getAssets();
-                if (manager == null) {
-                    return;
-                }
-                is = manager.open(fileName);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (is == null) {
-                return;
-            }
-            FileOutputStream fos = new FileOutputStream(file);
-            byte[] buffer = new byte[1024];
-            int byteCount = 0;
-            while ((byteCount = is.read(buffer)) != -1) {
-                // buffer字节
-                fos.write(buffer, 0, byteCount);
-            }
-            fos.flush();// 刷新缓冲区
-            is.close();
-            fos.close();
-        } catch (Exception e) {
-            Log.e("yj","copy---exception---"+e.toString());
-            e.printStackTrace();
-        }
-
-    }
+//    private void copyAssets(String fileName) {
+//        try {
+//            File files = new File(fileDir);
+//            if (!files.exists()) {
+//                files.mkdirs();
+//            }
+//            File file = new File(files, fileName);
+//            InputStream is = null;
+//            try {
+//                AssetManager manager = getAssets();
+//                if (manager == null) {
+//                    return;
+//                }
+//                is = manager.open(fileName);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            if (is == null) {
+//                return;
+//            }
+//            FileOutputStream fos = new FileOutputStream(file);
+//            byte[] buffer = new byte[1024];
+//            int byteCount = 0;
+//            while ((byteCount = is.read(buffer)) != -1) {
+//                // buffer字节
+//                fos.write(buffer, 0, byteCount);
+//            }
+//            fos.flush();// 刷新缓冲区
+//            is.close();
+//            fos.close();
+//        } catch (Exception e) {
+//            Log.e("yj","copy---exception---"+e.toString());
+//            e.printStackTrace();
+//        }
+//
+//    }
 
 
     @Override

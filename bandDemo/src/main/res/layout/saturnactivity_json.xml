@@ -6,10 +6,9 @@
     android:layout_height="match_parent"
     tools:context="com.ryeex.sdkband.MainActivity">
 
-
     <TextView
         android:id="@+id/tv_connect_status"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#FFECEDED"
         android:gravity="center"
@@ -47,24 +46,26 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingTop="20dp"
-            android:paddingBottom="20dp">
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
 
             <Button
                 android:id="@+id/btn_unbind"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/解绑" />
 
-<!--            <Button-->
-<!--                android:id="@+id/btn_scan"-->
-<!--                android:layout_width="120dp"-->
-<!--                android:layout_height="40dp"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:gravity="center"-->
-<!--                android:text="@string/扫描" />-->
+            <Button
+                android:id="@+id/btn_quit_saving_power"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="退出省电模式" />
 
 <!--            <Button-->
 <!--                android:id="@+id/btn_reboot"-->
@@ -76,83 +77,121 @@
 
             <Button
                 android:id="@+id/btn_reboot"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="重启"/>
 
             <Button
                 android:id="@+id/btn_long_press"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/长按" />
 
             <Button
                 android:id="@+id/btn_right_slip"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/右滑" />
 
             <Button
                 android:id="@+id/btn_left_slip"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/左滑" />
 
             <Button
                 android:id="@+id/btn_up_slip"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/上滑" />
 
             <Button
                 android:id="@+id/btn_down_slip"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/下滑" />
 
             <Button
                 android:id="@+id/btn_home"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="Home" />
 
             <Button
                 android:id="@+id/btn_longhome"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="Long Home" />
 
             <Button
                 android:id="@+id/btn_getdevice"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="获取设备标识" />
 
             <Button
                 android:id="@+id/btn_click"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="坐标点击/滑动" />
+
+            <Button
+                android:id="@+id/btn_addsteps"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="增加步数" />
+
+            <Button
+                android:id="@+id/btn_stopwatchstatus"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="获取秒表状态" />
+
+            <Button
+                android:id="@+id/btn_shakestatus"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@color/colorNormal"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="获取震动状态" />
+
 
 
         </LinearLayout>
