@@ -284,7 +284,7 @@ public class SaturnJsonDevicesActivity extends AppCompatActivity {
 
     public void long_press() {
         if (WatchManager.getInstance().getDevice() != null) {
-            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "160", "160", "160", "2000"), new AsyncBleCallback<String, BleError>() {
+            WatchManager.getInstance().getDevice().sendJsonRequest(buildJson("160", "160", "160", "160", "3000"), new AsyncBleCallback<String, BleError>() {
                 //            device.sendJson(inPutStr, new AsyncProtocolCallback<String, BleError>() {
                 @Override
                 public void onSuccess(String result) {

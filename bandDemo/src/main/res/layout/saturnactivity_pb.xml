@@ -176,6 +176,14 @@
                 android:gravity="center"
                 android:text="@string/设置目标步数" />
 
+            <TextView
+                android:id="@+id/tv_setDeviceMusic"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/colorNormal"
+                android:gravity="center"
+                android:text="音乐控制" />
 
             <TextView
                 android:id="@+id/tv_setDeviceLanguage"

@@ -48,6 +48,7 @@ import com.ryeex.watch.adapter.model.entity.DeviceDataSet;
 import com.ryeex.watch.adapter.model.entity.DeviceLanguage;
 import com.ryeex.watch.adapter.model.entity.DeviceSurfaceInfo;
 import com.ryeex.watch.adapter.model.entity.DrinkWaterRemindSetting;
+import com.ryeex.watch.adapter.model.entity.SwitchSetting;
 import com.ryeex.watch.protocol.pb.entity.PBWeather;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
@@ -205,7 +206,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             R.id.tv_setWeatherNotifyStatus, R.id.tv_getWeatherNotifyStatus, R.id.tv_getDeviceRunState, R.id.tv_getDeviceLogFile,
             R.id.tv_getDeviceAlarmClockList, R.id.tv_saveDeviceAlarmClock, R.id.tv_deleteDeviceAlarmClock, R.id.tv_ota,
             R.id.tv_installSurface, R.id.tv_deleteSurface, R.id.tv_bluetooth_control, R.id.tv_getDrinkWaterRemindSetting,
-            R.id.tv_setDrinkWaterRemindSetting, R.id.tv_updateWeatherInfo, R.id.tv_setDeviceLanguage
+            R.id.tv_setDrinkWaterRemindSetting, R.id.tv_updateWeatherInfo, R.id.tv_setDeviceLanguage, R.id.tv_setDeviceMusic
 //            R.id.tv_getSurfaceList, R.id.send_json
     })
     public void onClick(View v) {
@@ -347,6 +348,9 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
                 break;
             case R.id.tv_setDeviceLanguage:
                 setDeviceLanguage(v);
+                break;
+            case R.id.tv_setDeviceMusic:
+                setDeviceMusic(v);
                 break;
             default:
         }
@@ -1444,15 +1448,19 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
     }
 
     private void installSurface(View view) {
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
         DeviceSurfaceInfo deviceSurfaceInfo = new DeviceSurfaceInfo();
-        deviceSurfaceInfo.setId(9568);
+        deviceSurfaceInfo.setId(Integer.parseInt(inPutStr));
         deviceSurfaceInfo.setVersion(2);
         deviceSurfaceInfo.setSelected(true);
         DeviceSurfaceInfo.Resource resource = new DeviceSurfaceInfo.Resource();
-        resource.setName("watchface_9568");
+        resource.setName("watchface_" + inPutStr);
         resource.setType(DeviceSurfaceInfo.Resource.Type.TAR);
-        resource.setBytes(FileUtil.readFromAssets(this, "watchface_9568.tar"));
+        resource.setBytes(FileUtil.readFromAssets(this, "watchface_" + inPutStr + ".tar"));
         List<DeviceSurfaceInfo.Resource> resources = new ArrayList<>();
         resources.add(resource);
         deviceSurfaceInfo.setResources(resources);
@@ -1481,13 +1489,13 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
     }
 
     private void deleteSurface(View view) {
-//        if (inPutStr.isEmpty()) {
-//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
-//            return;
-//        }
+        if (inPutStr.isEmpty()) {
+            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+            return;
+        }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
 //        WatchManager.getInstance().getDevice().deleteSurface(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
-        WatchManager.getInstance().getDevice().deleteSurface(9568, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().deleteSurface(Integer.parseInt(inPutStr), new AsyncBleCallback<Void, BleError>() {
             @Override
             public void onSuccess(Void result) {
                 Log.i(TAG, "deleteSurface onSuccess");
@@ -1571,6 +1579,37 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             @Override
             public void onFailure(BleError error) {
                 Log.e(TAG, "setDrinkWaterRemindSetting onFailure:" + error);
+                setTextResult(error.toString());
+                view.setBackgroundColor(getResources().getColor(R.color.colorRed));
+            }
+        });
+    }
+
+    private void setDeviceMusic(View view) {
+//        if (inPutStr.isEmpty()) {
+//            Toast.makeText(this, "数据不能为空", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+        view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
+//        SwitchSetting switchSetting = GSON.parseObject(inPutStr, SwitchSetting.class);
+        List<SwitchSetting> switchSettingmusic = new ArrayList<>();
+        SwitchSetting switchSetting = new SwitchSetting();
+        switchSetting.setEnable(true);
+        switchSetting.setType(switchSetting.type);
+        switchSettingmusic.add(switchSetting);
+        Log.i(TAG, "switchSettingmusic:"+GSON.toJSONString(switchSettingmusic));
+        WatchManager.getInstance().getDevice().setSwitchSetting(switchSettingmusic, new AsyncBleCallback<Void, BleError>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                Log.i(TAG, "setDeviceMusic onSuccess");
+                setTextResult("set success");
+                view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            }
+
+            @Override
+            public void onFailure(BleError error) {
+                Log.e(TAG, "setDeviceMusic onFailure:" + error);
                 setTextResult(error.toString());
                 view.setBackgroundColor(getResources().getColor(R.color.colorRed));
             }
