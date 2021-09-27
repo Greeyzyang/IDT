@@ -16,6 +16,7 @@ import com.ryeex.ble.common.device.OnBindListener;
 import com.ryeex.ble.common.model.entity.RyeexDeviceBindInfo;
 import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
+import com.ryeex.ble.connector.error.ServerError;
 import com.ryeex.ble.connector.scan.ScannedDevice;
 import com.ryeex.sdk.R;
 import com.ryeex.watch.adapter.device.WatchDevice;
@@ -90,7 +91,7 @@ public class WatchBindActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onServerBind(RyeexDeviceBindInfo deviceBindInfo, AsyncBleCallback<Void, BleError> callback) {
+            public void onServerBind(RyeexDeviceBindInfo deviceBindInfo, AsyncBleCallback<Void, ServerError> callback) {
                 if (callback != null) {
                     callback.sendSuccessMessage(null);
                 }

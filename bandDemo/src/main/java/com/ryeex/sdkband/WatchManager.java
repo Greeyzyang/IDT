@@ -25,6 +25,7 @@ import com.ryeex.ble.connector.BleEngine;
 import com.ryeex.ble.connector.callback.AsyncBleCallback;
 import com.ryeex.ble.connector.error.BleError;
 import com.ryeex.ble.connector.error.BleErrorCode;
+import com.ryeex.ble.connector.error.ServerError;
 import com.ryeex.ble.connector.log.BleLogger;
 import com.ryeex.sdkband.listener.OnVoiceListener;
 import com.ryeex.sdkband.model.PrefsDevice;
@@ -94,49 +95,9 @@ public class WatchManager {
                     break;
                 case BluetoothAdapter.STATE_TURNING_OFF:
                     Log.d(TAG, " BroadcastReceiver STATE_TURNING_OFF");
-                    getDevice().disconnect(new AsyncBleCallback<Void, BleError>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            for (DeviceConnectListener listener : deviceConnectListeners) {
-                                if (listener != null) {
-                                    listener.onDisconnected(new BleError(BleErrorCode.BLE_CLOSE, "system bluetooth is closed"));
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(BleError error) {
-                            for (DeviceConnectListener listener : deviceConnectListeners) {
-                                if (listener != null) {
-                                    listener.onDisconnected(new BleError(BleErrorCode.BLE_CLOSE, "system bluetooth is closed"));
-                                }
-                            }
-                        }
-                    });
-                    break;
                 case BluetoothAdapter.STATE_OFF:
                     Log.d(TAG, " BroadcastReceiver STATE_OFF");
-                    if (getDevice().isConnected()) {
-                        getDevice().disconnect(new AsyncBleCallback<Void, BleError>() {
-                            @Override
-                            public void onSuccess(Void result) {
-                                for (DeviceConnectListener listener : deviceConnectListeners) {
-                                    if (listener != null) {
-                                        listener.onDisconnected(new BleError(BleErrorCode.BLE_CLOSE, "bluetooth is close"));
-                                    }
-                                }
-                            }
 
-                            @Override
-                            public void onFailure(BleError error) {
-                                for (DeviceConnectListener listener : deviceConnectListeners) {
-                                    if (listener != null) {
-                                        listener.onDisconnected(new BleError(BleErrorCode.BLE_CLOSE, "bluetooth is close"));
-                                    }
-                                }
-                            }
-                        });
-                    }
                     break;
                 default:
             }
@@ -350,7 +311,7 @@ public class WatchManager {
             }
 
             @Override
-            public void onServerBind(RyeexDeviceBindInfo deviceBindInfo, AsyncBleCallback<Void, BleError> callback) {
+            public void onServerBind(RyeexDeviceBindInfo deviceBindInfo, AsyncBleCallback<Void, ServerError> callback) {
                 //TODO 这里需要替换为实际服务端绑定逻辑，这里demo就直接返回成功
                 if (callback != null) {
                     callback.sendSuccessMessage(null);

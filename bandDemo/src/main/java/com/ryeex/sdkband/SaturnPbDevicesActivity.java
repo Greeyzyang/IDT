@@ -45,7 +45,7 @@ import com.ryeex.sdk.R;
 import com.ryeex.sdkband.model.PrefsDevice;
 import com.ryeex.sdkband.utils.GSON;
 import com.ryeex.watch.adapter.model.entity.DeviceDataSet;
-import com.ryeex.watch.adapter.model.entity.DeviceLanguage;
+//import com.ryeex.watch.adapter.model.entity.DeviceLanguage;
 import com.ryeex.watch.adapter.model.entity.DeviceSurfaceInfo;
 import com.ryeex.watch.adapter.model.entity.DrinkWaterRemindSetting;
 import com.ryeex.watch.adapter.model.entity.SwitchSetting;
@@ -745,7 +745,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
                 Log.i(TAG, "updateFirmware onSuccess");
                 setTextResult("set success");
                 view.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-                WatchManager.getInstance().getDevice().disconnect(null);
+                WatchManager.getInstance().getDevice().logout(null, null);
                 uiHandler.sendEmptyMessageDelayed(MSG_REBOOT, 20 * DateUtils.SECOND_IN_MILLIS);
             }
 
@@ -1339,8 +1339,9 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             return;
         }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceLanguage deviceLanguage = GSON.parseObject(inPutStr, DeviceLanguage.class);
-        WatchManager.getInstance().getDevice().setDeviceLanguage(deviceLanguage, new AsyncBleCallback<Void, BleError>() {
+        com.ryeex.watch.protocol.pb.entity.PBProperty.LanguageParamPropVal.LANG_TYPE long_type = GSON.parseObject(inPutStr, com.ryeex.watch.protocol.pb.entity.PBProperty.LanguageParamPropVal.LANG_TYPE.class);
+//        PBProperty.LanguageParamPropVal.LANG_TYPE long_type = GSON.parseObject(inPutStr, PBProperty.LanguageParamPropVal.LANG_TYPE.class);
+        WatchManager.getInstance().getDevice().setDeviceLanguage(long_type, new AsyncBleCallback<Void, BleError>() {
 
             @Override
             public void onSuccess(Void result) {
@@ -1453,20 +1454,27 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
             return;
         }
         view.setBackgroundColor(getResources().getColor(R.color.colorNormal));
-        DeviceSurfaceInfo deviceSurfaceInfo = new DeviceSurfaceInfo();
-        deviceSurfaceInfo.setId(Integer.parseInt(inPutStr));
-        deviceSurfaceInfo.setVersion(2);
-        deviceSurfaceInfo.setSelected(true);
-        DeviceSurfaceInfo.Resource resource = new DeviceSurfaceInfo.Resource();
-        resource.setName("watchface_" + inPutStr);
-        resource.setType(DeviceSurfaceInfo.Resource.Type.TAR);
-        resource.setBytes(FileUtil.readFromAssets(this, "watchface_" + inPutStr + ".tar"));
-        List<DeviceSurfaceInfo.Resource> resources = new ArrayList<>();
+        DeviceSurfaceInfo.Surface surface = new DeviceSurfaceInfo.Surface();
+        String [] arr = inPutStr.split(",");
+        List<String> list = new ArrayList<>();
+        for (String s : arr){
+            list.add(s);
+        }
+        surface.setId(Integer.parseInt(list.get(0)));
+        surface.setVersion(2);
+        surface.setSelected(true);
+        DeviceSurfaceInfo.Surface.SurfaceType SurfaceType = GSON.parseObject(list.get(1), DeviceSurfaceInfo.Surface.SurfaceType.class);
+        surface.setSurfaceType(SurfaceType);
+        DeviceSurfaceInfo.Surface.Resource resource = new DeviceSurfaceInfo.Surface.Resource();
+        resource.setName("watchface_" + list.get(0));
+        resource.setType(DeviceSurfaceInfo.Surface.Resource.Type.TAR);
+        resource.setBytes(FileUtil.readFromAssets(this, "watchface_" + list.get(0) + ".tar"));
+        List<DeviceSurfaceInfo.Surface.Resource> resources = new ArrayList<>();
         resources.add(resource);
-        deviceSurfaceInfo.setResources(resources);
+        surface.setResources(resources);
 
         //        DeviceSurfaceInfo deviceSurfaceInfo = GSON.parseObject(inPutStr, DeviceSurfaceInfo.class);
-        WatchManager.getInstance().getDevice().installSurface(deviceSurfaceInfo, new AsyncBleCallback<Void, BleError>() {
+        WatchManager.getInstance().getDevice().installSurface(surface, new AsyncBleCallback<Void, BleError>() {
 
             @Override
             public void onProgress(float progress) {
@@ -1595,7 +1603,7 @@ public class SaturnPbDevicesActivity extends AppCompatActivity {
         List<SwitchSetting> switchSettingmusic = new ArrayList<>();
         SwitchSetting switchSetting = new SwitchSetting();
         switchSetting.setEnable(true);
-        switchSetting.setType(switchSetting.type);
+//        switchSetting.setType(switchSetting.isEnable());
         switchSettingmusic.add(switchSetting);
         Log.i(TAG, "switchSettingmusic:"+GSON.toJSONString(switchSettingmusic));
         WatchManager.getInstance().getDevice().setSwitchSetting(switchSettingmusic, new AsyncBleCallback<Void, BleError>() {
